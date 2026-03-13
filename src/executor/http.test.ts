@@ -36,7 +36,7 @@ describe("executeRequest", () => {
       status: 200,
       statusText: "OK",
       headers: new Map([["content-type", "application/json"]]),
-      json: () => Promise.resolve({ id: 123, name: "Rex" }),
+      text: () => Promise.resolve(JSON.stringify({ id: 123, name: "Rex" })),
     }));
 
     await executeRequest(op, { petId: 123 }, NO_AUTH, BASE_URL);
@@ -61,7 +61,7 @@ describe("executeRequest", () => {
       status: 200,
       statusText: "OK",
       headers: new Map([["content-type", "application/json"]]),
-      json: () => Promise.resolve([]),
+      text: () => Promise.resolve(JSON.stringify([])),
     }));
 
     await executeRequest(op, { limit: 10, status: "available" }, NO_AUTH, BASE_URL);
@@ -88,7 +88,7 @@ describe("executeRequest", () => {
       status: 201,
       statusText: "Created",
       headers: new Map([["content-type", "application/json"]]),
-      json: () => Promise.resolve({ id: 1, name: "Rex" }),
+      text: () => Promise.resolve(JSON.stringify({ id: 1, name: "Rex" })),
     }));
 
     await executeRequest(op, { name: "Rex", tag: "dog" }, NO_AUTH, BASE_URL);
@@ -107,7 +107,7 @@ describe("executeRequest", () => {
       status: 200,
       statusText: "OK",
       headers: new Map([["content-type", "application/json"]]),
-      json: () => Promise.resolve([]),
+      text: () => Promise.resolve(JSON.stringify([])),
     }));
 
     const auth: AuthConfig = { type: "bearer", value: "sk-test-123" };
@@ -125,7 +125,7 @@ describe("executeRequest", () => {
       status: 200,
       statusText: "OK",
       headers: new Map([["content-type", "application/json"]]),
-      json: () => Promise.resolve({}),
+      text: () => Promise.resolve(JSON.stringify({})),
     }));
 
     const auth: AuthConfig = { type: "apiKey", value: "my-key", headerName: "X-API-Key" };
@@ -143,7 +143,7 @@ describe("executeRequest", () => {
       status: 200,
       statusText: "OK",
       headers: new Map([["content-type", "application/json"], ["x-request-id", "abc"]]),
-      json: () => Promise.resolve([{ id: 1, name: "Rex" }]),
+      text: () => Promise.resolve(JSON.stringify([{ id: 1, name: "Rex" }])),
     }));
 
     const result = await executeRequest(makeOp(), {}, NO_AUTH, BASE_URL);
@@ -181,7 +181,7 @@ describe("executeRequest", () => {
       status: 200,
       statusText: "OK",
       headers: new Map([["content-type", "application/json"]]),
-      json: () => Promise.resolve([]),
+      text: () => Promise.resolve(JSON.stringify([])),
     }));
 
     await executeRequest(op, { limit: 10 }, NO_AUTH, BASE_URL);

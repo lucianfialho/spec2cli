@@ -38,7 +38,12 @@ export async function executeRequest(
   let data: unknown;
   const contentType = res.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {
-    data = await res.json();
+    const text = await res.text();
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
   } else {
     const text = await res.text();
     try {

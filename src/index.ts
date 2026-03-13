@@ -111,7 +111,11 @@ function buildDynamicCommands(
       const cmdName = simplifyName(op.id, group.tag);
       const cmd = groupCmd.command(cmdName).description(op.summary || op.description);
 
+      const seenParams = new Set<string>();
       for (const p of op.params) {
+        if (seenParams.has(p.name)) continue;
+        seenParams.add(p.name);
+
         const flag = `--${p.name} <${p.name}>`;
         const desc = p.description || p.name;
         if (p.required) {
