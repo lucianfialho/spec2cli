@@ -1,0 +1,243 @@
+openapi: "3.0.3"
+info:
+  title: Petstore
+  version: "1.0.0"
+  description: A sample API that uses a petstore as an example
+servers:
+  - url: https://petstore.example.com/v1
+tags:
+  - name: pets
+    description: Manage pets
+  - name: store
+    description: Store operations
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      summary: List all pets
+      tags:
+        - pets
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: How many items to return (max 100)
+          schema:
+            type: integer
+            maximum: 100
+        - name: status
+          in: query
+          required: false
+          description: Filter by status
+          schema:
+            type: string
+            enum:
+              - available
+              - pending
+              - sold
+      responses:
+        "200":
+          description: A list of pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pet"
+    post:
+      operationId: createPet
+      summary: Create a pet
+      tags:
+        - pets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Pet name
+                tag:
+                  type: string
+                  description: Pet tag
+                status:
+                  type: string
+                  description: Pet status
+                  enum:
+                    - available
+                    - pending
+                    - sold
+                  default: available
+      responses:
+        "201":
+          description: Pet created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+      security:
+        - bearerAuth: []
+  /pets/{petId}:
+    get:
+      operationId: getPet
+      summary: Get a pet by ID
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          description: The ID of the pet
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A pet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+    put:
+      operationId: updatePet
+      summary: Update a pet
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          description: The ID of the pet
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Pet name
+                tag:
+                  type: string
+                  description: Pet tag
+                status:
+                  type: string
+                  description: Pet status
+                  enum:
+                    - available
+                    - pending
+                    - sold
+      responses:
+        "200":
+          description: Pet updated
+      security:
+        - bearerAuth: []
+    delete:
+      operationId: deletePet
+      summary: Delete a pet
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          description: The ID of the pet
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Pet deleted
+      security:
+        - bearerAuth: []
+  /store/inventory:
+    get:
+      operationId: getInventory
+      summary: Returns pet inventories by status
+      tags:
+        - store
+      responses:
+        "200":
+          description: Inventory map
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - apiKeyAuth: []
+  /store/orders:
+    post:
+      operationId: placeOrder
+      summary: Place an order for a pet
+      tags:
+        - store
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - petId
+                - quantity
+              properties:
+                petId:
+                  type: integer
+                  description: Pet ID to order
+                quantity:
+                  type: integer
+                  description: Number of pets
+      responses:
+        "201":
+          description: Order placed
+      security:
+        - apiKeyAuth: []
+  /store/orders/{orderId}:
+    get:
+      operationId: getOrder
+      summary: Get order by ID
+      tags:
+        - store
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Order ID
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order details
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        tag:
+          type: string
+        status:
+          type: string
+          enum:
+            - available
+            - pending
+            - sold
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
