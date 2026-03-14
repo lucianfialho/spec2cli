@@ -27,8 +27,12 @@ Commands (registry):
   add --from <url>        Import APIs from a remote registry
   remove <name>           Remove a custom API from local registry
 
+AI agents:
+  --agent-help              Compact YAML with all commands, params, and auth
+
 Examples:
   spec2cli --spec ./api.yaml pets list
+  spec2cli --spec ./api.yaml --agent-help
   spec2cli use petstore pet findpetsbystatus --status available
   spec2cli search payments
   spec2cli add myapi --spec ./openapi.yaml --base-url http://localhost:3000`);
