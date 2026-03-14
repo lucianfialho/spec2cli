@@ -7,6 +7,7 @@ import { executeRequest } from "./executor/http.js";
 import { formatOutput } from "./output/formatters.js";
 import { registerAuthCommands } from "./auth/commands.js";
 import { registerInitCommand } from "./config/init.js";
+import { registerUseCommand } from "./templates/commands.js";
 import { loadConfig, resolveConfig } from "./config/rc.js";
 import type { RuntimeConfig } from "./executor/types.js";
 import type { OperationGroup, OpenAPISpec } from "./parser/types.js";
@@ -21,6 +22,7 @@ program
 // Static commands
 registerAuthCommands(program);
 registerInitCommand(program);
+registerUseCommand(program);
 
 async function main() {
   const rawArgs = process.argv.slice(2);
@@ -28,7 +30,7 @@ async function main() {
 
   // Handle static commands directly
   const firstArg = rawArgs[0];
-  if (firstArg === "auth" || firstArg === "init") {
+  if (firstArg === "auth" || firstArg === "init" || firstArg === "use") {
     program.parse(process.argv);
     return;
   }
