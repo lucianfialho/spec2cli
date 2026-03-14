@@ -46,8 +46,16 @@ async function main() {
     }
   }
 
-  // No spec? Show help
+  // No spec? Show usage
   if (!specPath) {
+    if (rawArgs.length > 0 && !rawArgs[0].startsWith("-") && rawArgs[0] !== "auth" && rawArgs[0] !== "init") {
+      console.error("Error: no OpenAPI spec found.\n");
+      console.error("  Either pass --spec:");
+      console.error("    tocli --spec ./openapi.yaml " + rawArgs.join(" ") + "\n");
+      console.error("  Or create a .toclirc:");
+      console.error("    tocli init --spec ./openapi.yaml\n");
+      process.exit(1);
+    }
     program.parse(process.argv);
     return;
   }
@@ -58,7 +66,7 @@ async function main() {
 
     const config: RuntimeConfig = {
       specPath,
-      baseUrl: getFlagValue(rawArgs, "--base-url") ?? configBaseUrl ?? spec.servers?.[0]?.url ?? "http://localhost:3000",
+      baseUrl: getFlagValue(rawArgs, "--base-url") ?? configBaseUrl ?? resolveBaseUrl(spec, specPath),
       auth: resolveAuth(rawArgs),
       output: getFlagValue(rawArgs, "--output") ?? (process.stdout.isTTY ? "pretty" : "json"),
       maxItems: getFlagValue(rawArgs, "--max-items") ? parseInt(getFlagValue(rawArgs, "--max-items")!) : undefined,
@@ -88,11 +96,7 @@ function buildDynamicCommands(
       const cmdName = simplifyName(op.id, group.tag);
       const cmd = groupCmd.command(cmdName).description(op.summary || op.description);
 
-      const seenParams = new Set<string>();
       for (const p of op.params) {
-        if (seenParams.has(p.name)) continue;
-        seenParams.add(p.name);
-
         const flag = `--${p.name} <${p.name}>`;
         const desc = p.description || p.name;
         if (p.required) {
@@ -139,6 +143,36 @@ function buildDynamicCommands(
       });
     }
   }
+}
+
+function resolveBaseUrl(spec: OpenAPISpec, specSource: string): string {
+  const serverUrl = spec.servers?.[0]?.url;
+
+  // Absolute URL — use as-is
+  if (serverUrl?.startsWith("http://") || serverUrl?.startsWith("https://")) {
+    return serverUrl;
+  }
+
+  // Relative URL — resolve against spec source origin
+  if (serverUrl && specSource.startsWith("http")) {
+    try {
+      const origin = new URL(specSource).origin;
+      return origin + (serverUrl.startsWith("/") ? serverUrl : "/" + serverUrl);
+    } catch {
+      // fall through
+    }
+  }
+
+  // Spec loaded from URL but no servers — infer origin
+  if (specSource.startsWith("http")) {
+    try {
+      return new URL(specSource).origin;
+    } catch {
+      // fall through
+    }
+  }
+
+  return "http://localhost:3000";
 }
 
 function simplifyName(operationId: string, tag: string): string {

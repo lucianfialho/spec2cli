@@ -127,6 +127,8 @@ function extractParams(
       if (schema.properties) {
         const requiredFields = schema.required ?? [];
         for (const [name, prop] of Object.entries(schema.properties)) {
+          if (seen.has(`body:${name}`) || seen.has(`query:${name}`) || seen.has(`path:${name}`) || seen.has(`header:${name}`)) continue;
+          seen.add(`body:${name}`);
           const resolved = resolveSchema(prop, spec);
           params.push({
             name,
