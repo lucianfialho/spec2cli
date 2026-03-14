@@ -18,7 +18,7 @@ export interface RcConfig {
   }>;
 }
 
-const RC_FILENAME = ".mcp-crc";
+const RC_FILENAME = ".toclirc";
 
 export async function loadConfig(startDir?: string): Promise<RcConfig | null> {
   const rcPath = await findRcFile(startDir ?? process.cwd());
@@ -28,7 +28,7 @@ export async function loadConfig(startDir?: string): Promise<RcConfig | null> {
   const config = parseYaml(raw) as RcConfig;
 
   if (!config.spec) {
-    throw new Error(`.mcp-crc found at ${rcPath} but missing 'spec' field.`);
+    throw new Error(`.toclirc found at ${rcPath} but missing 'spec' field.`);
   }
 
   return config;

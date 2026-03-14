@@ -52,7 +52,7 @@ function parseContent(raw: string, source: string): OpenAPISpec {
 function validate(spec: OpenAPISpec): void {
   if (!spec.openapi || !spec.openapi.startsWith("3.")) {
     throw new Error(
-      `Unsupported OpenAPI version: ${spec.openapi ?? "missing"}. mcp-c requires OpenAPI 3.x.`
+      `Unsupported OpenAPI version: ${spec.openapi ?? "missing"}. tocli requires OpenAPI 3.x.`
     );
   }
 

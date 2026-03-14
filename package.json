@@ -1,22 +1,21 @@
 {
-  "name": "mcp-c",
+  "name": "tocli",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "mcp-c": "dist/index.js"
+    "tocli": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
-    "test": "vitest run && node bench/benchmark.mjs",
-    "test:unit": "vitest run",
-    "test:bench": "node bench/benchmark.mjs"
+    "test": "vitest run",
+    "test:bench": "node research/bench/benchmark.mjs"
   },
-  "keywords": ["mcp", "cli", "openapi", "ai-agents", "context-efficient"],
+  "keywords": ["cli", "openapi", "api", "rest", "codegen"],
   "author": "",
   "license": "MIT",
-  "description": "Context-efficient CLI protocol for AI agents. Progressive discovery + output envelope.",
+  "description": "Turn any OpenAPI spec into a CLI. No code generation, no build step.",
   "dependencies": {
     "commander": "^13.0.0",
     "yaml": "^2.7.0"

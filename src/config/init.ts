@@ -6,7 +6,7 @@ import type { Command } from "commander";
 export function registerInitCommand(program: Command): void {
   program
     .command("init")
-    .description("Create a .mcp-crc config file in the current directory")
+    .description("Create a .toclirc config file in the current directory")
     .option("--spec <path>", "Path or URL to OpenAPI spec")
     .option("--base-url <url>", "Base URL for API")
     .action(async (opts: Record<string, string>) => {
@@ -31,7 +31,7 @@ export function registerInitCommand(program: Command): void {
         },
       };
 
-      const rcPath = join(process.cwd(), ".mcp-crc");
+      const rcPath = join(process.cwd(), ".toclirc");
       const yaml = toYaml(config);
       await writeFile(rcPath, yaml, "utf-8");
       console.log(`Created ${rcPath}`);

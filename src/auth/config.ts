@@ -5,7 +5,7 @@ import type { AuthStore, AuthProfile } from "./types.js";
 
 function getConfigDir(): string {
   const xdg = process.env["XDG_CONFIG_HOME"];
-  return join(xdg ?? join(homedir(), ".config"), "mcp-c");
+  return join(xdg ?? join(homedir(), ".config"), "tocli");
 }
 
 function getConfigPath(): string {

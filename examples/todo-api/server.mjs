@@ -1,5 +1,5 @@
 /**
- * Simple in-memory Todo API server for testing mcp-c.
+ * Simple in-memory Todo API server for testing tocli.
  *
  * Run:   node examples/todo-api/server.mjs
  * Stops: Ctrl+C (or auto-stops after 5 minutes)
@@ -12,7 +12,7 @@ const AUTH_TOKEN = "test-token-123";
 let nextId = 1;
 const todos = [
   { id: nextId++, title: "Buy groceries", description: "Milk, eggs, bread", status: "pending", priority: "high", tags: ["shopping", "personal"], createdAt: "2025-01-10T09:00:00Z" },
-  { id: nextId++, title: "Write README", description: "Document the mcp-c protocol", status: "done", priority: "high", tags: ["work", "docs"], createdAt: "2025-01-10T10:00:00Z" },
+  { id: nextId++, title: "Write README", description: "Document the tocli protocol", status: "done", priority: "high", tags: ["work", "docs"], createdAt: "2025-01-10T10:00:00Z" },
   { id: nextId++, title: "Fix login bug", description: "Users can't login on mobile", status: "pending", priority: "high", tags: ["work", "bug"], createdAt: "2025-01-10T11:00:00Z" },
   { id: nextId++, title: "Call dentist", description: "Schedule cleaning", status: "pending", priority: "low", tags: ["personal", "health"], createdAt: "2025-01-10T12:00:00Z" },
   { id: nextId++, title: "Review PR #42", description: "Performance improvements", status: "pending", priority: "medium", tags: ["work", "review"], createdAt: "2025-01-10T13:00:00Z" },

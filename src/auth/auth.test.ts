@@ -74,7 +74,7 @@ describe("auth config (profile persistence)", () => {
   let tmpDir: string;
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "mcp-c-test-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "tocli-test-"));
     vi.stubEnv("XDG_CONFIG_HOME", tmpDir);
   });
 

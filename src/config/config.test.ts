@@ -8,22 +8,22 @@ describe("loadConfig", () => {
   let tmpDir: string;
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "mcp-c-rc-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "tocli-rc-"));
   });
 
   afterEach(async () => {
     await rm(tmpDir, { recursive: true, force: true });
   });
 
-  it("loads .mcp-crc from directory", async () => {
-    await writeFile(join(tmpDir, ".mcp-crc"), "spec: ./api.yaml\nbaseUrl: https://api.example.com\n");
+  it("loads .toclirc from directory", async () => {
+    await writeFile(join(tmpDir, ".toclirc"), "spec: ./api.yaml\nbaseUrl: https://api.example.com\n");
     const config = await loadConfig(tmpDir);
     expect(config).not.toBeNull();
     expect(config!.spec).toBe("./api.yaml");
     expect(config!.baseUrl).toBe("https://api.example.com");
   });
 
-  it("returns null when no .mcp-crc found", async () => {
+  it("returns null when no .toclirc found", async () => {
     const config = await loadConfig(tmpDir);
     expect(config).toBeNull();
   });
@@ -41,7 +41,7 @@ environments:
     auth:
       envVar: STAGING_TOKEN
 `;
-    await writeFile(join(tmpDir, ".mcp-crc"), yaml);
+    await writeFile(join(tmpDir, ".toclirc"), yaml);
     const config = await loadConfig(tmpDir);
     expect(config!.environments!["staging"].baseUrl).toBe("https://staging.example.com");
   });
