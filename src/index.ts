@@ -27,7 +27,8 @@ Commands (registry):
   add --from <url>        Import APIs from a remote registry
   remove <name>           Remove a custom API from local registry
 
-AI agents:
+Flags:
+  --dry-run                 Preview the HTTP request without executing
   --agent-help              Compact YAML with all commands, params, and auth
 
 Examples:
@@ -98,6 +99,7 @@ async function main() {
       maxItems: getFlagValue(rawArgs, "--max-items") ? parseInt(getFlagValue(rawArgs, "--max-items")!) : undefined,
       verbose: rawArgs.includes("--verbose"),
       quiet: rawArgs.includes("--quiet"),
+      dryRun: rawArgs.includes("--dry-run"),
     };
 
     buildDynamicCommands(program, groups, config);
@@ -147,6 +149,12 @@ function buildDynamicCommands(
           }
         }
 
+        // --dry-run: show request without executing
+        if (config.dryRun) {
+          printDryRun(op, params, config);
+          return;
+        }
+
         try {
           const result = await executeRequest(op, params, config.auth, config.baseUrl, config.verbose);
 
@@ -169,6 +177,57 @@ function buildDynamicCommands(
       });
     }
   }
+}
+
+function printDryRun(op: import("./parser/types.js").Operation, params: Record<string, unknown>, config: RuntimeConfig): void {
+  // Build URL
+  let path = op.path;
+  for (const p of op.params) {
+    if (p.in === "path" && params[p.name] !== undefined) {
+      path = path.replace(`{${p.name}}`, String(params[p.name]));
+    }
+  }
+  const base = config.baseUrl.endsWith("/") ? config.baseUrl.slice(0, -1) : config.baseUrl;
+  const url = new URL(base + path);
+  for (const p of op.params) {
+    if (p.in === "query" && params[p.name] !== undefined) {
+      url.searchParams.set(p.name, String(params[p.name]));
+    }
+  }
+
+  // Headers
+  const headers: string[] = [];
+  if (["POST", "PUT", "PATCH"].includes(op.method)) {
+    headers.push("Content-Type: application/json");
+  }
+  headers.push("Accept: application/json");
+  if (config.auth.type === "bearer") {
+    headers.push(`Authorization: Bearer ${config.auth.value}`);
+  } else if (config.auth.type === "apiKey") {
+    headers.push(`${config.auth.headerName ?? "X-API-Key"}: ${config.auth.value}`);
+  }
+
+  // Body
+  const bodyParams = op.params.filter((p) => p.in === "body");
+  const body: Record<string, unknown> = {};
+  for (const p of bodyParams) {
+    if (params[p.name] !== undefined) body[p.name] = params[p.name];
+  }
+
+  // Print
+  console.log(`${op.method} ${url.toString()}`);
+  for (const h of headers) console.log(h);
+  if (Object.keys(body).length > 0) {
+    console.log("");
+    console.log(JSON.stringify(body, null, 2));
+  }
+
+  // Also print as curl
+  console.log("");
+  let curl = `curl -X ${op.method} '${url.toString()}'`;
+  for (const h of headers) curl += ` \\\n  -H '${h}'`;
+  if (Object.keys(body).length > 0) curl += ` \\\n  -d '${JSON.stringify(body)}'`;
+  console.log(curl);
 }
 
 function printAgentHelp(groups: OperationGroup[], spec: OpenAPISpec): void {
@@ -290,7 +349,7 @@ function getFlagValue(args: string[], flag: string): string | undefined {
 
 function filterTocliFlags(argv: string[]): string[] {
   const valueFlags = new Set(["--spec", "--output", "--max-items", "--token", "--api-key", "--base-url", "--profile", "--env"]);
-  const boolFlags = new Set(["--verbose", "--quiet"]);
+  const boolFlags = new Set(["--verbose", "--quiet", "--dry-run", "--agent-help"]);
   const result: string[] = [];
   let i = 0;
   while (i < argv.length) {

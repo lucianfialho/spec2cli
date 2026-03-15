@@ -18,4 +18,5 @@ export interface RuntimeConfig {
   maxItems?: number;
   verbose: boolean;
   quiet: boolean;
+  dryRun: boolean;
 }
