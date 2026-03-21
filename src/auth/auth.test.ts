@@ -31,6 +31,18 @@ const specWithApiKey: OpenAPISpec = {
 };
 
 describe("resolveAuth", () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await mkdtemp(join(tmpdir(), "tocli-auth-resolve-"));
+    vi.stubEnv("XDG_CONFIG_HOME", tmpDir);
+  });
+
+  afterEach(async () => {
+    vi.unstubAllEnvs();
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
   it("returns none when no auth provided", async () => {
     const auth = await resolveAuth({}, minimalSpec, {});
     expect(auth.type).toBe("none");
