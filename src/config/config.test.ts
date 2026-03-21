@@ -77,6 +77,30 @@ describe("resolveConfig", () => {
     expect(resolved.authEnvVar).toBe("STAGING_TOKEN");
   });
 
+  it("returns auth token from config", () => {
+    const config = {
+      spec: "./api.yaml",
+      auth: { type: "bearer", token: "direct-token" },
+    };
+    const resolved = resolveConfig(config);
+    expect(resolved.authType).toBe("bearer");
+    expect(resolved.authToken).toBe("direct-token");
+  });
+
+  it("overrides auth token with environment config", () => {
+    const config = {
+      spec: "./api.yaml",
+      auth: { type: "bearer", token: "prod-token" },
+      environments: {
+        staging: {
+          auth: { token: "staging-token" },
+        },
+      },
+    };
+    const resolved = resolveConfig(config, "staging");
+    expect(resolved.authToken).toBe("staging-token");
+  });
+
   it("keeps base config for unknown env", () => {
     const config = {
       spec: "./api.yaml",

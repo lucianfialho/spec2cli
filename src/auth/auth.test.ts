@@ -80,6 +80,40 @@ describe("resolveAuth", () => {
     expect(auth.type).toBe("bearer");
     expect(auth.value).toBe("env-token");
   });
+
+  it("uses .toclirc auth token", async () => {
+    const auth = await resolveAuth({ rcAuthType: "bearer", rcAuthToken: "rc-token-123" }, minimalSpec, {});
+    expect(auth.type).toBe("bearer");
+    expect(auth.value).toBe("rc-token-123");
+  });
+
+  it("uses .toclirc auth envVar", async () => {
+    const auth = await resolveAuth({ rcAuthType: "bearer", rcAuthEnvVar: "MY_API_TOKEN" }, minimalSpec, { MY_API_TOKEN: "env-resolved" });
+    expect(auth.type).toBe("bearer");
+    expect(auth.value).toBe("env-resolved");
+  });
+
+  it("defaults rcAuthType to bearer when not specified", async () => {
+    const auth = await resolveAuth({ rcAuthToken: "tok" }, minimalSpec, {});
+    expect(auth.type).toBe("bearer");
+    expect(auth.value).toBe("tok");
+  });
+
+  it("inline --token takes priority over .toclirc auth", async () => {
+    const auth = await resolveAuth({ token: "inline-tok", rcAuthToken: "rc-tok" }, minimalSpec, {});
+    expect(auth.value).toBe("inline-tok");
+  });
+
+  it(".toclirc auth takes priority over saved profile", async () => {
+    await saveProfile("default", { type: "bearer", value: "profile-tok" });
+    const auth = await resolveAuth({ rcAuthToken: "rc-tok" }, minimalSpec);
+    expect(auth.value).toBe("rc-tok");
+  });
+
+  it("resolves env vars in .toclirc auth token", async () => {
+    const auth = await resolveAuth({ rcAuthToken: "$SECRET_TOK" }, minimalSpec, { SECRET_TOK: "resolved-secret" });
+    expect(auth.value).toBe("resolved-secret");
+  });
 });
 
 describe("auth config (profile persistence)", () => {

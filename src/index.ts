@@ -6,6 +6,7 @@ import { extractOperations } from "./parser/extractor.js";
 import { executeRequest } from "./executor/http.js";
 import { formatOutput } from "./output/formatters.js";
 import { registerAuthCommands } from "./auth/commands.js";
+import { resolveAuth as resolveAuthFromFlags } from "./auth/flags.js";
 import { registerInitCommand } from "./config/init.js";
 import { registerUseCommand } from "./templates/commands.js";
 import { loadConfig, resolveConfig } from "./config/rc.js";
@@ -59,6 +60,9 @@ async function main() {
   // Resolve spec: --spec flag > .toclirc config
   let specPath = getFlagValue(rawArgs, "--spec");
   let configBaseUrl: string | undefined;
+  let rcAuthType: string | undefined;
+  let rcAuthToken: string | undefined;
+  let rcAuthEnvVar: string | undefined;
 
   if (!specPath) {
     const rc = await loadConfig();
@@ -66,6 +70,9 @@ async function main() {
       const resolved = resolveConfig(rc, envName);
       specPath = resolved.spec;
       configBaseUrl = resolved.baseUrl;
+      rcAuthType = resolved.authType;
+      rcAuthToken = resolved.authToken;
+      rcAuthEnvVar = resolved.authEnvVar;
     }
   }
 
@@ -93,10 +100,22 @@ async function main() {
       return;
     }
 
+    const auth = await resolveAuthFromFlags(
+      {
+        token: getFlagValue(rawArgs, "--token"),
+        apiKey: getFlagValue(rawArgs, "--api-key"),
+        profile: getFlagValue(rawArgs, "--profile"),
+        rcAuthType,
+        rcAuthToken,
+        rcAuthEnvVar,
+      },
+      spec
+    );
+
     const config: RuntimeConfig = {
       specPath,
       baseUrl: getFlagValue(rawArgs, "--base-url") ?? configBaseUrl ?? resolveBaseUrl(spec, specPath),
-      auth: resolveAuth(rawArgs),
+      auth,
       output: getFlagValue(rawArgs, "--output") ?? (process.stdout.isTTY ? "pretty" : "json"),
       maxItems: getFlagValue(rawArgs, "--max-items") ? parseInt(getFlagValue(rawArgs, "--max-items")!) : undefined,
       verbose: rawArgs.includes("--verbose"),
@@ -358,14 +377,6 @@ function simplifyName(operationId: string, tag: string): string {
     }
   }
   return operationId.toLowerCase();
-}
-
-function resolveAuth(args: string[]): RuntimeConfig["auth"] {
-  const token = getFlagValue(args, "--token");
-  if (token) return { type: "bearer", value: token };
-  const apiKey = getFlagValue(args, "--api-key");
-  if (apiKey) return { type: "apiKey", value: apiKey, headerName: "X-API-Key" };
-  return { type: "none", value: "" };
 }
 
 function getFlagValue(args: string[], flag: string): string | undefined {
