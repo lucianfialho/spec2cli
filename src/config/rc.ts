@@ -7,12 +7,14 @@ export interface RcConfig {
   baseUrl?: string;
   auth?: {
     type?: string;
+    token?: string;
     envVar?: string;
   };
   environments?: Record<string, {
     baseUrl?: string;
     auth?: {
       type?: string;
+      token?: string;
       envVar?: string;
     };
   }>;
@@ -34,22 +36,27 @@ export async function loadConfig(startDir?: string): Promise<RcConfig | null> {
   return config;
 }
 
-export function resolveConfig(config: RcConfig, envName?: string): { spec: string; baseUrl?: string; authEnvVar?: string } {
+export function resolveConfig(config: RcConfig, envName?: string): { spec: string; baseUrl?: string; authType?: string; authToken?: string; authEnvVar?: string } {
   let spec = config.spec;
   let baseUrl = config.baseUrl;
+  let authType = config.auth?.type;
+  let authToken = config.auth?.token;
   let authEnvVar = config.auth?.envVar;
 
   if (envName && config.environments?.[envName]) {
     const env = config.environments[envName];
     if (env.baseUrl) baseUrl = env.baseUrl;
+    if (env.auth?.type) authType = env.auth.type;
+    if (env.auth?.token) authToken = env.auth.token;
     if (env.auth?.envVar) authEnvVar = env.auth.envVar;
   }
 
   // Resolve env vars in values
   spec = resolveEnvVars(spec);
   if (baseUrl) baseUrl = resolveEnvVars(baseUrl);
+  if (authToken) authToken = resolveEnvVars(authToken);
 
-  return { spec, baseUrl, authEnvVar };
+  return { spec, baseUrl, authType, authToken, authEnvVar };
 }
 
 async function findRcFile(dir: string): Promise<string | null> {

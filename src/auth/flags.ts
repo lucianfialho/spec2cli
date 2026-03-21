@@ -7,6 +7,9 @@ export interface AuthFlags {
   apiKey?: string;
   authHeader?: string;
   profile?: string;
+  rcAuthType?: string;
+  rcAuthToken?: string;
+  rcAuthEnvVar?: string;
 }
 
 export async function resolveAuth(
@@ -26,7 +29,20 @@ export async function resolveAuth(
     return { type: "bearer", value: resolveEnvVar(flags.authHeader, env) };
   }
 
-  // Priority 2: Environment variables from spec
+  // Priority 2: .toclirc auth config
+  if (flags.rcAuthToken) {
+    const type = (flags.rcAuthType as AuthConfig["type"]) ?? "bearer";
+    return { type, value: resolveEnvVar(flags.rcAuthToken, env) };
+  }
+  if (flags.rcAuthEnvVar) {
+    const envVal = env[flags.rcAuthEnvVar];
+    if (envVal) {
+      const type = (flags.rcAuthType as AuthConfig["type"]) ?? "bearer";
+      return { type, value: envVal };
+    }
+  }
+
+  // Priority 3: Environment variables from spec
   const specAuth = detectAuthFromSpec(spec);
   if (specAuth) {
     // Check common env var names
@@ -38,7 +54,7 @@ export async function resolveAuth(
     }
   }
 
-  // Priority 3: Saved profile
+  // Priority 4: Saved profile
   const profileName = flags.profile ?? "default";
   const profile = await getProfile(profileName);
   if (profile) {
