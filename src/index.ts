@@ -10,7 +10,8 @@ import { registerUseCommand } from "./templates/commands.js";
 import { loadConfig, resolveConfig } from "./config/rc.js";
 import { scanSchema } from "@lucianfialho/pii-filter";
 import { buildDynamicCommands } from "./cli/dynamic-commands.js";
-import { printAgentHelp, resolveBaseUrl } from "./cli/agent-help.js";
+import { printAgentHelp, parseAgentHelpSelector } from "./cli/agent-help.js";
+import { resolveBaseUrl } from "./cli/spec-hints.js";
 import { getFlagValue, parseHeaderArgs, filterTocliFlags } from "./cli/flags.js";
 import type { RuntimeConfig } from "./executor/types.js";
 
@@ -23,6 +24,13 @@ program
   .addHelpText("after", `
 Commands: use | search | add | remove
 Flags:    --dry-run | --validate | --agent-help | --filter-pii | --header "Name: Value"
+
+Agent help (progressive — root lists groups, drill down for detail):
+  spec2cli --spec ./api.yaml --agent-help                 groups and counts
+  spec2cli --spec ./api.yaml --agent-help pets            commands in a group
+  spec2cli --spec ./api.yaml --agent-help pets create     parameters for one command
+  spec2cli --spec ./api.yaml --agent-help --find "create" search every group
+  spec2cli --spec ./api.yaml --agent-help --all           everything at once
 
 Examples:
   spec2cli --spec ./api.yaml pets list
@@ -82,7 +90,7 @@ async function main() {
     const groups = extractOperations(spec);
 
     if (rawArgs.includes("--agent-help")) {
-      printAgentHelp(groups, spec);
+      printAgentHelp(groups, spec, parseAgentHelpSelector(rawArgs));
       return;
     }
 

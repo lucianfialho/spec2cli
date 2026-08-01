@@ -4,7 +4,7 @@ import { formatOutput } from "../output/formatters.js";
 import { validateResponse } from "../validator/schema.js";
 import { filterPii } from "@lucianfialho/pii-filter";
 import { printDryRun } from "./dry-run.js";
-import { simplifyName } from "./agent-help.js";
+import { simplifyName } from "./spec-hints.js";
 import { sanitizeCommandName, uniqueName } from "./sanitize.js";
 import type { RuntimeConfig } from "../executor/types.js";
 import type { OperationGroup, OpenAPISpec } from "../parser/types.js";

@@ -134,6 +134,26 @@ spec2cli --spec api.yaml pets --help      # shows subcommands
 spec2cli --spec api.yaml pets create --help  # shows flags with types
 ```
 
+### Agent help
+
+`--agent-help` emits a machine-readable catalog for an LLM agent driving the CLI.
+It is served progressively: a spec with 1000 operations costs ~84k tokens to dump
+in full, so the root level lists groups only and the agent pays for detail just
+where it decided to act.
+
+```bash
+spec2cli --spec api.yaml --agent-help                  # groups and counts (~300 tokens)
+spec2cli --spec api.yaml --agent-help pets             # command names in one group
+spec2cli --spec api.yaml --agent-help pets create      # full parameters for one command
+spec2cli --spec api.yaml --agent-help --find "create"  # search across every group
+spec2cli --spec api.yaml --agent-help --all            # everything at once
+```
+
+Walking root → group → command costs ~1.1k tokens on that same 1000-operation
+spec, against ~84k for `--all`. Because only one command is expanded at a time,
+the detail level carries full descriptions — including parameter semantics that
+live in prose rather than in the schema.
+
 ### Debug
 
 ```bash
