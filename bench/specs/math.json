@@ -1,0 +1,619 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "math",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8901"
+    }
+  ],
+  "tags": [
+    {
+      "name": "math"
+    }
+  ],
+  "paths": {
+    "/tools/add": {
+      "post": {
+        "operationId": "add",
+        "summary": "Adds two numbers together",
+        "description": "Adds two numbers together",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstNumber": {
+                    "type": "number",
+                    "description": "The first addend"
+                  },
+                  "secondNumber": {
+                    "type": "number",
+                    "description": "The second addend"
+                  }
+                },
+                "required": [
+                  "firstNumber",
+                  "secondNumber"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/subtract": {
+      "post": {
+        "operationId": "subtract",
+        "summary": "Subtracts the second number from the first number",
+        "description": "Subtracts the second number from the first number",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "minuend": {
+                    "type": "number",
+                    "description": "The number to subtract from (minuend)"
+                  },
+                  "subtrahend": {
+                    "type": "number",
+                    "description": "The number being subtracted (subtrahend)"
+                  }
+                },
+                "required": [
+                  "minuend",
+                  "subtrahend"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/multiply": {
+      "post": {
+        "operationId": "multiply",
+        "summary": "Multiplies two numbers together",
+        "description": "Multiplies two numbers together",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstNumber": {
+                    "type": "number",
+                    "description": "The first number"
+                  },
+                  "SecondNumber": {
+                    "type": "number",
+                    "description": "The second number"
+                  }
+                },
+                "required": [
+                  "firstNumber",
+                  "SecondNumber"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/division": {
+      "post": {
+        "operationId": "division",
+        "summary": "Divides the first number by the second number",
+        "description": "Divides the first number by the second number",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numerator": {
+                    "type": "number",
+                    "description": "The number being divided (numerator)"
+                  },
+                  "denominator": {
+                    "type": "number",
+                    "description": "The number to divide by (denominator)"
+                  }
+                },
+                "required": [
+                  "numerator",
+                  "denominator"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/sum": {
+      "post": {
+        "operationId": "sum",
+        "summary": "Adds any number of numbers together",
+        "description": "Adds any number of numbers together",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 1,
+                    "description": "Array of numbers to sum"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/mean": {
+      "post": {
+        "operationId": "mean",
+        "summary": "Calculates the arithmetic mean of a list of numbers",
+        "description": "Calculates the arithmetic mean of a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 1,
+                    "description": "Array of numbers to find the mean of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/median": {
+      "post": {
+        "operationId": "median",
+        "summary": "Calculates the median of a list of numbers",
+        "description": "Calculates the median of a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 1,
+                    "description": "Array of numbers to find the median of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/mode": {
+      "post": {
+        "operationId": "mode",
+        "summary": "Finds the most common number in a list of numbers",
+        "description": "Finds the most common number in a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Array of numbers to find the mode of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/min": {
+      "post": {
+        "operationId": "min",
+        "summary": "Finds the minimum value from a list of numbers",
+        "description": "Finds the minimum value from a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Array of numbers to find the minimum of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/max": {
+      "post": {
+        "operationId": "max",
+        "summary": "Finds the maximum value from a list of numbers",
+        "description": "Finds the maximum value from a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Array of numbers to find the maximum of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/floor": {
+      "post": {
+        "operationId": "floor",
+        "summary": "Rounds a number down to the nearest integer",
+        "description": "Rounds a number down to the nearest integer",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "number",
+                    "description": "The number to round down"
+                  }
+                },
+                "required": [
+                  "number"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/ceiling": {
+      "post": {
+        "operationId": "ceiling",
+        "summary": "Rounds a number up to the nearest integer",
+        "description": "Rounds a number up to the nearest integer",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "number",
+                    "description": "The number to round up"
+                  }
+                },
+                "required": [
+                  "number"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/round": {
+      "post": {
+        "operationId": "round",
+        "summary": "Rounds a number to the nearest integer",
+        "description": "Rounds a number to the nearest integer",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "number",
+                    "description": "The number to round"
+                  }
+                },
+                "required": [
+                  "number"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
