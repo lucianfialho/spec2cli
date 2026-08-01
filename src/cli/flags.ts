@@ -20,7 +20,7 @@ export const VALUE_FLAGS = new Set(["--spec", "--output", "--max-items", "--toke
 
 export function filterTocliFlags(argv: string[]): string[] {
   const valueFlags = VALUE_FLAGS;
-  const boolFlags = new Set(["--verbose", "--quiet", "--dry-run", "--validate", "--agent-help", "--filter-pii"]);
+  const boolFlags = new Set(["--verbose", "--quiet", "--dry-run", "--reveal", "--validate", "--agent-help", "--filter-pii"]);
   const result: string[] = [];
   let i = 0;
   while (i < argv.length) {
