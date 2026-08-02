@@ -36,22 +36,43 @@ describe("parseAgentHelpSelector", () => {
   it("reads --all", () => {
     expect(parseAgentHelpSelector(["--agent-help", "--all"]).all).toBe(true);
   });
+
+  it("reads --progressive", () => {
+    expect(parseAgentHelpSelector(["--agent-help", "--progressive"]).progressive).toBe(true);
+  });
+});
+
+describe("default shape", () => {
+  // Discovery costs round trips, and a round trip resends the whole
+  // conversation. On a small spec that outweighs the catalog it saves, so the
+  // flat dump is the cheaper default until the catalog is genuinely large.
+  it("serves the flat catalog for a small spec", async () => {
+    const { doc } = await help();
+    expect(Object.keys(doc.commands)).toEqual(["pets", "store"]);
+    expect(doc.groups).toBeUndefined();
+  });
+
+  it("switches to drill-down when asked, whatever the size", async () => {
+    const { doc } = await help({ progressive: true });
+    expect(doc.groups).toEqual({ pets: "5 commands", store: "3 commands" });
+    expect(doc.commands).toBeUndefined();
+  });
 });
 
 describe("root level", () => {
   it("lists groups with command counts instead of the commands themselves", async () => {
-    const { doc } = await help();
+    const { doc } = await help({ progressive: true });
     expect(doc.groups).toEqual({ pets: "5 commands", store: "3 commands" });
     expect(doc.commands).toBeUndefined();
   });
 
   it("tells the agent how to drill down", async () => {
-    const { doc } = await help();
+    const { doc } = await help({ progressive: true });
     expect(Object.values(doc.drill_down).join(" ")).toContain("--agent-help <group>");
   });
 
   it("costs less than the full dump", async () => {
-    const root = await help();
+    const root = await help({ progressive: true });
     const all = await help({ all: true });
     expect(root.raw.length).toBeLessThan(all.raw.length / 2);
   });

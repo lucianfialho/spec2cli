@@ -22,6 +22,8 @@ export interface AgentHelpSelector {
   command?: string;
   find?: string;
   all?: boolean;
+  /** Force the drill-down root regardless of how many operations the spec has. */
+  progressive?: boolean;
 }
 
 /**
@@ -41,6 +43,10 @@ export function parseAgentHelpSelector(args: string[]): AgentHelpSelector {
     }
     if (arg === "--all") {
       selector.all = true;
+      continue;
+    }
+    if (arg === "--progressive") {
+      selector.progressive = true;
       continue;
     }
     if (arg === "--find") {
@@ -64,6 +70,19 @@ export function printAgentHelp(
   console.log(toYaml(buildAgentHelp(groups, spec, selector)));
 }
 
+/**
+ * Below this many operations the flat catalog is cheaper than discovering it.
+ *
+ * Progressive disclosure trades a smaller upfront payload for extra round trips,
+ * and a round trip is not free: the whole conversation is resent each turn. On a
+ * measured agent loop that came to ~73k tokens per extra discovery step, against
+ * a flat catalog of ~84 tokens per operation — so the trade only pays somewhere
+ * near a thousand operations. A leaner agent resends less and crosses over
+ * sooner, which is why this sits well below the measured figure rather than at
+ * it. See bench/README.md.
+ */
+const PROGRESSIVE_THRESHOLD = 400;
+
 function buildAgentHelp(
   groups: OperationGroup[],
   spec: OpenAPISpec,
@@ -71,7 +90,12 @@ function buildAgentHelp(
 ): Record<string, unknown> {
   if (selector.all) return fullDump(groups, spec);
   if (selector.find) return searchOps(groups, spec, selector.find);
-  if (!selector.group) return describeRoot(groups, spec);
+
+  if (!selector.group) {
+    const total = groups.reduce((n, g) => n + g.operations.length, 0);
+    const progressive = selector.progressive ?? total > PROGRESSIVE_THRESHOLD;
+    return progressive ? describeRoot(groups, spec) : fullDump(groups, spec);
+  }
 
   const group = findGroup(groups, selector.group);
   if (!group) {

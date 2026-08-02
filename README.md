@@ -178,17 +178,24 @@ in full, so the root level lists groups only and the agent pays for detail just
 where it decided to act.
 
 ```bash
-spec2cli --spec api.yaml --agent-help                  # groups and counts (~300 tokens)
+spec2cli --spec api.yaml --agent-help                  # whole catalog, or groups if the spec is large
 spec2cli --spec api.yaml --agent-help pets             # command names in one group
 spec2cli --spec api.yaml --agent-help pets create      # full parameters for one command
 spec2cli --spec api.yaml --agent-help --find "create"  # search across every group
-spec2cli --spec api.yaml --agent-help --all            # everything at once
+spec2cli --spec api.yaml --agent-help --all            # force the whole catalog
+spec2cli --spec api.yaml --agent-help --progressive    # force the drill-down root
 ```
 
-Walking root → group → command costs ~1.1k tokens on that same 1000-operation
-spec, against ~84k for `--all`. Because only one command is expanded at a time,
-the detail level carries full descriptions — including parameter semantics that
-live in prose rather than in the schema.
+Walking root → group → command costs ~1.1k tokens on a 1000-operation spec,
+against ~84k for `--all`. Because only one command is expanded at a time, the
+detail level carries full descriptions — including parameter semantics that live
+in prose rather than in the schema.
+
+Discovery is not free, though: each drill-down is a round trip, and an agent
+resends its whole conversation every turn. Measured against a real agent loop
+that costs far more than a small catalog saves, so `--agent-help` hands over the
+flat catalog below 400 operations and drills down above it. See `bench/` for the
+measurements behind that threshold.
 
 ### Dry run
 

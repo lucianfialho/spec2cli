@@ -25,12 +25,13 @@ const HELP = `
 Commands: use | search | add | remove
 Flags:    --dry-run | --reveal | --validate | --agent-help | --filter-pii | --header "Name: Value"
 
-Agent help (progressive — root lists groups, drill down for detail):
-  spec2cli --spec ./api.yaml --agent-help                 groups and counts
+Agent help (flat for small specs, drill-down for large ones):
+  spec2cli --spec ./api.yaml --agent-help                 catalog (groups only if large)
   spec2cli --spec ./api.yaml --agent-help pets            commands in a group
   spec2cli --spec ./api.yaml --agent-help pets create     parameters for one command
   spec2cli --spec ./api.yaml --agent-help --find "create" search every group
-  spec2cli --spec ./api.yaml --agent-help --all           everything at once
+  spec2cli --spec ./api.yaml --agent-help --all           force the whole catalog
+  spec2cli --spec ./api.yaml --agent-help --progressive   force the drill-down root
 
 Exit codes: 0 ok · 2 schema · 3 missing input · 4 auth · 5 not found
             6 client · 7 rate limited · 8 server · 9 network · 10 spec

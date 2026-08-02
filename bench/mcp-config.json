@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "math": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/private/tmp/claude-501/-Users-lucianfialho-Code-tocli/acd780f2-f38e-4f4c-bee1-44923cba090b/scratchpad/mcp-bench/mcp_servers/math-mcp/build/index.js"
+      ]
+    },
+    "met": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/private/tmp/claude-501/-Users-lucianfialho-Code-tocli/acd780f2-f38e-4f4c-bee1-44923cba090b/scratchpad/mcp-bench/mcp_servers/metmuseum-mcp/dist/index.js"
+      ]
+    },
+    "nixos": {
+      "type": "stdio",
+      "command": "/private/tmp/claude-501/-Users-lucianfialho-Code-tocli/acd780f2-f38e-4f4c-bee1-44923cba090b/scratchpad/mcp-bench/mcp_servers/mcp-nixos/.venv/bin/python",
+      "args": ["-m", "mcp_nixos.server"],
+      "env": {
+        "PYTHONPATH": "/private/tmp/claude-501/-Users-lucianfialho-Code-tocli/acd780f2-f38e-4f4c-bee1-44923cba090b/scratchpad/mcp-bench/mcp_servers/mcp-nixos"
+      }
+    }
+  }
+}

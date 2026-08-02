@@ -1,0 +1,1544 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Bench Tools",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8901"
+    }
+  ],
+  "tags": [
+    {
+      "name": "math"
+    },
+    {
+      "name": "met"
+    },
+    {
+      "name": "nixos"
+    }
+  ],
+  "paths": {
+    "/tools/add": {
+      "post": {
+        "operationId": "add",
+        "summary": "Adds two numbers together",
+        "description": "Adds two numbers together",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstNumber": {
+                    "type": "number",
+                    "description": "The first addend"
+                  },
+                  "secondNumber": {
+                    "type": "number",
+                    "description": "The second addend"
+                  }
+                },
+                "required": [
+                  "firstNumber",
+                  "secondNumber"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/subtract": {
+      "post": {
+        "operationId": "subtract",
+        "summary": "Subtracts the second number from the first number",
+        "description": "Subtracts the second number from the first number",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "minuend": {
+                    "type": "number",
+                    "description": "The number to subtract from (minuend)"
+                  },
+                  "subtrahend": {
+                    "type": "number",
+                    "description": "The number being subtracted (subtrahend)"
+                  }
+                },
+                "required": [
+                  "minuend",
+                  "subtrahend"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/multiply": {
+      "post": {
+        "operationId": "multiply",
+        "summary": "Multiplies two numbers together",
+        "description": "Multiplies two numbers together",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstNumber": {
+                    "type": "number",
+                    "description": "The first number"
+                  },
+                  "SecondNumber": {
+                    "type": "number",
+                    "description": "The second number"
+                  }
+                },
+                "required": [
+                  "firstNumber",
+                  "SecondNumber"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/division": {
+      "post": {
+        "operationId": "division",
+        "summary": "Divides the first number by the second number",
+        "description": "Divides the first number by the second number",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numerator": {
+                    "type": "number",
+                    "description": "The number being divided (numerator)"
+                  },
+                  "denominator": {
+                    "type": "number",
+                    "description": "The number to divide by (denominator)"
+                  }
+                },
+                "required": [
+                  "numerator",
+                  "denominator"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/sum": {
+      "post": {
+        "operationId": "sum",
+        "summary": "Adds any number of numbers together",
+        "description": "Adds any number of numbers together",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 1,
+                    "description": "Array of numbers to sum"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/mean": {
+      "post": {
+        "operationId": "mean",
+        "summary": "Calculates the arithmetic mean of a list of numbers",
+        "description": "Calculates the arithmetic mean of a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 1,
+                    "description": "Array of numbers to find the mean of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/median": {
+      "post": {
+        "operationId": "median",
+        "summary": "Calculates the median of a list of numbers",
+        "description": "Calculates the median of a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 1,
+                    "description": "Array of numbers to find the median of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/mode": {
+      "post": {
+        "operationId": "mode",
+        "summary": "Finds the most common number in a list of numbers",
+        "description": "Finds the most common number in a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Array of numbers to find the mode of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/min": {
+      "post": {
+        "operationId": "min",
+        "summary": "Finds the minimum value from a list of numbers",
+        "description": "Finds the minimum value from a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Array of numbers to find the minimum of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/max": {
+      "post": {
+        "operationId": "max",
+        "summary": "Finds the maximum value from a list of numbers",
+        "description": "Finds the maximum value from a list of numbers",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "numbers": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Array of numbers to find the maximum of"
+                  }
+                },
+                "required": [
+                  "numbers"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/floor": {
+      "post": {
+        "operationId": "floor",
+        "summary": "Rounds a number down to the nearest integer",
+        "description": "Rounds a number down to the nearest integer",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "number",
+                    "description": "The number to round down"
+                  }
+                },
+                "required": [
+                  "number"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/ceiling": {
+      "post": {
+        "operationId": "ceiling",
+        "summary": "Rounds a number up to the nearest integer",
+        "description": "Rounds a number up to the nearest integer",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "number",
+                    "description": "The number to round up"
+                  }
+                },
+                "required": [
+                  "number"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/round": {
+      "post": {
+        "operationId": "round",
+        "summary": "Rounds a number to the nearest integer",
+        "description": "Rounds a number to the nearest integer",
+        "tags": [
+          "math"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "number",
+                    "description": "The number to round"
+                  }
+                },
+                "required": [
+                  "number"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/list-departments": {
+      "post": {
+        "operationId": "list-departments",
+        "summary": "List all departments in the Metropolitan Museum of Art (Met Museum)",
+        "description": "List all departments in the Metropolitan Museum of Art (Met Museum)",
+        "tags": [
+          "met"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "__intent": {
+                    "type": "string",
+                    "description": "In ≤ 30 words, describe why you are calling this tool and how its result advances your overall task. Don't use first-person pronouns like \"I\" or \"my\". Make sure to give a gist of the whole task and how this tool fits into it."
+                  }
+                },
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                  "__intent"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/search-museum-objects": {
+      "post": {
+        "operationId": "search-museum-objects",
+        "summary": "Search for objects in the Metropolitan Museum of Art (Met Museum). Will return Total objects found, followed by a list of Object Ids.The parameter title should be set to true if you want to search for objects by title.The parameter hasImages is false by default, but can be set to true to return obje",
+        "description": "Search for objects in the Metropolitan Museum of Art (Met Museum). Will return Total objects found, followed by a list of Object Ids.The parameter title should be set to true if you want to search for objects by title.The parameter hasImages is false by default, but can be set to true to return objects without images.If the parameter hasImages is true, the parameter title should be false.",
+        "tags": [
+          "met"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "q": {
+                    "type": "string",
+                    "description": "The search query, Returns a listing of all Object IDs for objects that contain the search query within the object's data"
+                  },
+                  "hasImages": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Only returns objects that have images"
+                  },
+                  "title": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "This should be set to true if you want to search for objects by title"
+                  },
+                  "departmentId": {
+                    "type": "number",
+                    "description": "Returns objects that are in the specified department. The departmentId should come from the 'list-departments' tool."
+                  },
+                  "__intent": {
+                    "type": "string",
+                    "description": "In ≤ 30 words, describe why you are calling this tool and how its result advances your overall task. Don't use first-person pronouns like \"I\" or \"my\". Make sure to give a gist of the whole task and how this tool fits into it."
+                  }
+                },
+                "required": [
+                  "q",
+                  "__intent"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/get-museum-object": {
+      "post": {
+        "operationId": "get-museum-object",
+        "summary": "Get a museum object by its ID, from the Metropolitan Museum of Art Collection",
+        "description": "Get a museum object by its ID, from the Metropolitan Museum of Art Collection",
+        "tags": [
+          "met"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "objectId": {
+                    "type": "number",
+                    "description": "The ID of the museum object to retrieve"
+                  },
+                  "returnImage": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to return the image (if available) of the object and add it to the server resources"
+                  },
+                  "__intent": {
+                    "type": "string",
+                    "description": "In ≤ 30 words, describe why you are calling this tool and how its result advances your overall task. Don't use first-person pronouns like \"I\" or \"my\". Make sure to give a gist of the whole task and how this tool fits into it."
+                  }
+                },
+                "required": [
+                  "objectId",
+                  "__intent"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/nixos_search": {
+      "post": {
+        "operationId": "nixos_search",
+        "summary": "Search NixOS packages, options, or programs.",
+        "description": "Search NixOS packages, options, or programs.\n\n    Args:\n        query: Search term to look for\n        search_type: Type of search - \"packages\", \"options\", \"programs\", or \"flakes\"\n        limit: Maximum number of results to return (1-100)\n        channel: NixOS channel to search in (e.g., \"unstable\", \"stable\", \"25.05\")\n\n    Returns:\n        Plain text results with bullet points or error message\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "query": {
+                    "title": "Query",
+                    "type": "string"
+                  },
+                  "search_type": {
+                    "default": "packages",
+                    "title": "Search Type",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 20,
+                    "title": "Limit",
+                    "type": "integer"
+                  },
+                  "channel": {
+                    "default": "unstable",
+                    "title": "Channel",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "query"
+                ],
+                "title": "nixos_searchArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/nixos_info": {
+      "post": {
+        "operationId": "nixos_info",
+        "summary": "Get detailed info about a NixOS package or option.",
+        "description": "Get detailed info about a NixOS package or option.\n\n    Args:\n        name: Name of the package or option to look up\n        type: Type of lookup - \"package\" or \"option\"\n        channel: NixOS channel to search in (e.g., \"unstable\", \"stable\", \"25.05\")\n\n    Returns:\n        Plain text details about the package/option or error message\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "type": {
+                    "default": "package",
+                    "title": "Type",
+                    "type": "string"
+                  },
+                  "channel": {
+                    "default": "unstable",
+                    "title": "Channel",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "title": "nixos_infoArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/nixos_channels": {
+      "post": {
+        "operationId": "nixos_channels",
+        "summary": "List available NixOS channels with their status.",
+        "description": "List available NixOS channels with their status.\n\n    Returns:\n        Plain text list showing channel names, versions, and availability\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "title": "nixos_channelsArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/nixos_stats": {
+      "post": {
+        "operationId": "nixos_stats",
+        "summary": "Get NixOS statistics for a channel.",
+        "description": "Get NixOS statistics for a channel.\n\n    Args:\n        channel: NixOS channel to get stats for (e.g., \"unstable\", \"stable\", \"25.05\")\n\n    Returns:\n        Plain text statistics including package/option counts\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "channel": {
+                    "default": "unstable",
+                    "title": "Channel",
+                    "type": "string"
+                  }
+                },
+                "title": "nixos_statsArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/home_manager_search": {
+      "post": {
+        "operationId": "home_manager_search",
+        "summary": "Search Home Manager configuration options.",
+        "description": "Search Home Manager configuration options.\n\n    Searches through available Home Manager options by name and description.\n\n    Args:\n        query: The search query string to match against option names and descriptions\n        limit: Maximum number of results to return (default: 20, max: 100)\n\n    Returns:\n        Plain text list of matching options with name, type, and description\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "query": {
+                    "title": "Query",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 20,
+                    "title": "Limit",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "query"
+                ],
+                "title": "home_manager_searchArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/home_manager_info": {
+      "post": {
+        "operationId": "home_manager_info",
+        "summary": "Get detailed information about a specific Home Manager option.",
+        "description": "Get detailed information about a specific Home Manager option.\n\n    Requires an exact option name match. If not found, suggests similar options.\n\n    Args:\n        name: The exact option name (e.g., 'programs.git.enable')\n\n    Returns:\n        Plain text with option details (name, type, description) or error with suggestions\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "title": "home_manager_infoArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/home_manager_stats": {
+      "post": {
+        "operationId": "home_manager_stats",
+        "summary": "Get statistics about Home Manager options.",
+        "description": "Get statistics about Home Manager options.\n\n    Retrieves overall statistics including total options, categories, and top categories.\n\n    Returns:\n        Plain text summary with total options, category count, and top 5 categories\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "title": "home_manager_statsArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/home_manager_list_options": {
+      "post": {
+        "operationId": "home_manager_list_options",
+        "summary": "List all Home Manager option categories.",
+        "description": "List all Home Manager option categories.\n\n    Enumerates all top-level categories with their option counts.\n\n    Returns:\n        Plain text list of categories sorted alphabetically with option counts\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "title": "home_manager_list_optionsArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/home_manager_options_by_prefix": {
+      "post": {
+        "operationId": "home_manager_options_by_prefix",
+        "summary": "Get Home Manager options matching a specific prefix.",
+        "description": "Get Home Manager options matching a specific prefix.\n\n    Useful for browsing options under a category or finding exact option names.\n\n    Args:\n        option_prefix: The prefix to match (e.g., 'programs.git' or 'services')\n\n    Returns:\n        Plain text list of options with the given prefix, including descriptions\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "option_prefix": {
+                    "title": "Option Prefix",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "option_prefix"
+                ],
+                "title": "home_manager_options_by_prefixArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/darwin_search": {
+      "post": {
+        "operationId": "darwin_search",
+        "summary": "Search nix-darwin (macOS) configuration options.",
+        "description": "Search nix-darwin (macOS) configuration options.\n\n    Searches through available nix-darwin options by name and description.\n\n    Args:\n        query: The search query string to match against option names and descriptions\n        limit: Maximum number of results to return (default: 20, max: 100)\n\n    Returns:\n        Plain text list of matching options with name, type, and description\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "query": {
+                    "title": "Query",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 20,
+                    "title": "Limit",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "query"
+                ],
+                "title": "darwin_searchArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/darwin_info": {
+      "post": {
+        "operationId": "darwin_info",
+        "summary": "Get detailed information about a specific nix-darwin option.",
+        "description": "Get detailed information about a specific nix-darwin option.\n\n    Requires an exact option name match. If not found, suggests similar options.\n\n    Args:\n        name: The exact option name (e.g., 'system.defaults.dock.autohide')\n\n    Returns:\n        Plain text with option details (name, type, description) or error with suggestions\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "title": "darwin_infoArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/darwin_stats": {
+      "post": {
+        "operationId": "darwin_stats",
+        "summary": "Get statistics about nix-darwin options.",
+        "description": "Get statistics about nix-darwin options.\n\n    Retrieves overall statistics including total options, categories, and top categories.\n\n    Returns:\n        Plain text summary with total options, category count, and top 5 categories\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "title": "darwin_statsArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/darwin_list_options": {
+      "post": {
+        "operationId": "darwin_list_options",
+        "summary": "List all nix-darwin option categories.",
+        "description": "List all nix-darwin option categories.\n\n    Enumerates all top-level categories with their option counts.\n\n    Returns:\n        Plain text list of categories sorted alphabetically with option counts\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "title": "darwin_list_optionsArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/darwin_options_by_prefix": {
+      "post": {
+        "operationId": "darwin_options_by_prefix",
+        "summary": "Get nix-darwin options matching a specific prefix.",
+        "description": "Get nix-darwin options matching a specific prefix.\n\n    Useful for browsing options under a category or finding exact option names.\n\n    Args:\n        option_prefix: The prefix to match (e.g., 'system.defaults' or 'services')\n\n    Returns:\n        Plain text list of options with the given prefix, including descriptions\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "option_prefix": {
+                    "title": "Option Prefix",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "option_prefix"
+                ],
+                "title": "darwin_options_by_prefixArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/nixos_flakes_stats": {
+      "post": {
+        "operationId": "nixos_flakes_stats",
+        "summary": "Get statistics about available NixOS flakes.",
+        "description": "Get statistics about available NixOS flakes.\n\n    Retrieves statistics from the flake search index including total packages,\n    unique repositories, flake types, and top contributors.\n\n    Returns:\n        Plain text summary with flake statistics and top contributors\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "title": "nixos_flakes_statsArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/nixos_flakes_search": {
+      "post": {
+        "operationId": "nixos_flakes_search",
+        "summary": "Search NixOS flakes by name, description, owner, or repository.",
+        "description": "Search NixOS flakes by name, description, owner, or repository.\n\n    Searches the flake index for community-contributed packages and configurations.\n    Flakes are indexed separately from official packages.\n\n    Args:\n        query: The search query (flake name, description, owner, or repository)\n        limit: Maximum number of results to return (default: 20, max: 100)\n        channel: Ignored - flakes use a separate indexing system\n\n    Returns:\n        Plain text list of unique flakes with their packages and metadata\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "query": {
+                    "title": "Query",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 20,
+                    "title": "Limit",
+                    "type": "integer"
+                  },
+                  "channel": {
+                    "default": "unstable",
+                    "title": "Channel",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "query"
+                ],
+                "title": "nixos_flakes_searchArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/nixhub_package_versions": {
+      "post": {
+        "operationId": "nixhub_package_versions",
+        "summary": "Get version history and nixpkgs commit hashes for a specific package from NixHub.io.",
+        "description": "Get version history and nixpkgs commit hashes for a specific package from NixHub.io.\n\n    Use this tool when users need specific package versions or commit hashes for reproducible builds.\n\n    Args:\n        package_name: Name of the package to query (e.g., \"firefox\", \"python\")\n        limit: Maximum number of versions to return (default: 10, max: 50)\n\n    Returns:\n        Plain text with package info and version history including commit hashes\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "package_name": {
+                    "title": "Package Name",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 10,
+                    "title": "Limit",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "package_name"
+                ],
+                "title": "nixhub_package_versionsArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/nixhub_find_version": {
+      "post": {
+        "operationId": "nixhub_find_version",
+        "summary": "Find a specific version of a package in NixHub with smart search.",
+        "description": "Find a specific version of a package in NixHub with smart search.\n\n    Automatically searches with increasing limits to find the requested version.\n\n    Args:\n        package_name: Name of the package to query (e.g., \"ruby\", \"python\")\n        version: Specific version to find (e.g., \"2.6.7\", \"3.5.9\")\n\n    Returns:\n        Plain text with version info and commit hash if found, or helpful message if not\n    ",
+        "tags": [
+          "nixos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "package_name": {
+                    "title": "Package Name",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "package_name",
+                  "version"
+                ],
+                "title": "nixhub_find_versionArguments",
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
