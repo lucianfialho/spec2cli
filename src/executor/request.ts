@@ -40,6 +40,7 @@ export function buildUrl(op: Operation, params: Record<string, unknown>, baseUrl
   // Ensure baseUrl trailing slash doesn't break path joining
   const normalizedBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
   const url = new URL(normalizedBase + path);
+  recoverQueryFromFragment(url);
 
   for (const p of op.params) {
     if (p.in === "query" && params[p.name] !== undefined) {
@@ -48,6 +49,24 @@ export function buildUrl(op: Operation, params: Record<string, unknown>, baseUrl
   }
 
   return url.toString();
+}
+
+/**
+ * Specs written by hand sometimes carry query defaults after a `#`, which URL
+ * parses as a fragment and never sends. When the fragment reads like a query
+ * string, treat it as one — anything explicitly passed still wins, since the
+ * caller's parameters are applied afterwards.
+ */
+function recoverQueryFromFragment(url: URL): void {
+  if (!url.hash) return;
+
+  const fragment = url.hash.slice(1);
+  if (!fragment.includes("=")) return;
+
+  for (const [name, value] of new URLSearchParams(fragment)) {
+    if (!url.searchParams.has(name)) url.searchParams.set(name, value);
+  }
+  url.hash = "";
 }
 
 export function buildHeaders(
