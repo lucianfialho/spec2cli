@@ -6,6 +6,7 @@ export interface OpenAPISpec {
   tags?: Tag[];
   components?: {
     schemas?: Record<string, SchemaObject>;
+    parameters?: Record<string, ParameterObject>;
     securitySchemes?: Record<string, SecurityScheme>;
   };
   security?: SecurityRequirement[];
@@ -35,7 +36,7 @@ export interface PathItem {
   delete?: OperationObject;
   head?: OperationObject;
   options?: OperationObject;
-  parameters?: ParameterObject[];
+  parameters?: ParameterLike[];
 }
 
 export interface OperationObject {
@@ -43,11 +44,18 @@ export interface OperationObject {
   summary?: string;
   description?: string;
   tags?: string[];
-  parameters?: ParameterObject[];
+  parameters?: ParameterLike[];
   requestBody?: RequestBodyObject;
   responses?: Record<string, ResponseObject>;
   security?: SecurityRequirement[];
 }
+
+/** A parameter may appear inline or as a `$ref` into components.parameters. */
+export interface ReferenceObject {
+  $ref: string;
+}
+
+export type ParameterLike = ParameterObject | ReferenceObject;
 
 export interface ParameterObject {
   name: string;

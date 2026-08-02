@@ -4,6 +4,7 @@ import type {
   Operation,
   Param,
   OperationObject,
+  ParameterLike,
   ParameterObject,
   SchemaObject,
   SecurityRequirement,
@@ -67,29 +68,43 @@ export function extractOperations(spec: OpenAPISpec): OperationGroup[] {
   return groups;
 }
 
+/**
+ * Every parameter becomes a flag, and a flag name has to be unique across the
+ * whole operation — a spec is free to put `id` in the path and again in the
+ * body, but `--id` can only mean one of them. So collisions are tracked by name
+ * as well as by location, and the first declaration wins: operation-level
+ * before path-level before body, which matches the precedence OpenAPI gives
+ * them anyway.
+ */
 function extractParams(
   op: OperationObject,
-  pathLevelParams: ParameterObject[],
+  pathLevelParams: ParameterLike[],
   spec: OpenAPISpec
 ): Param[] {
   const params: Param[] = [];
-  const seen = new Set<string>();
+  const seenLocations = new Set<string>();
+  const seenNames = new Set<string>();
+
+  const take = (p: ParameterObject): void => {
+    seenLocations.add(`${p.in}:${p.name}`);
+    seenNames.add(p.name);
+    params.push(paramFromSpec(p));
+  };
 
   // Operation-level params override path-level
   for (const rawP of op.parameters ?? []) {
     const p = resolveParameter(rawP, spec);
-    if (!p.name || !p.in) continue;
-    seen.add(`${p.in}:${p.name}`);
-    params.push(paramFromSpec(p));
+    if (!p) continue;
+    if (seenLocations.has(`${p.in}:${p.name}`) || seenNames.has(p.name)) continue;
+    take(p);
   }
 
   // Add path-level params not overridden
   for (const rawP of pathLevelParams) {
     const p = resolveParameter(rawP, spec);
-    if (!p.name || !p.in) continue;
-    if (!seen.has(`${p.in}:${p.name}`)) {
-      params.push(paramFromSpec(p));
-    }
+    if (!p) continue;
+    if (seenLocations.has(`${p.in}:${p.name}`) || seenNames.has(p.name)) continue;
+    take(p);
   }
 
   // Extract body params
@@ -100,8 +115,9 @@ function extractParams(
       if (schema.properties) {
         const requiredFields = schema.required ?? [];
         for (const [name, prop] of Object.entries(schema.properties)) {
-          if (seen.has(`body:${name}`) || seen.has(`query:${name}`) || seen.has(`path:${name}`) || seen.has(`header:${name}`)) continue;
-          seen.add(`body:${name}`);
+          if (seenNames.has(name)) continue;
+          seenLocations.add(`body:${name}`);
+          seenNames.add(name);
           const resolved = resolveSchema(prop, spec);
           params.push({
             name,
