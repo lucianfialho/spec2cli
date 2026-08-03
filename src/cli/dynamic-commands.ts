@@ -11,6 +11,17 @@ import { EXIT, classifyStatus, classifyThrown, fail, failMissingInput } from "./
 import type { RuntimeConfig } from "../executor/types.js";
 import type { OperationGroup, OpenAPISpec } from "../parser/types.js";
 
+/**
+ * Whether a parameter's value should be read as JSON rather than kept as text.
+ *
+ * The extractor names array types after their items — a `string[]`, not an
+ * `array` — so matching the literal word misses every array a spec declares and
+ * sends `["a","b"]` to the server as a string.
+ */
+function isStructured(type: string): boolean {
+  return type === "object" || type === "array" || type.endsWith("[]");
+}
+
 export function buildDynamicCommands(
   prog: Command,
   groups: OperationGroup[],
@@ -64,7 +75,7 @@ export function buildDynamicCommands(
             params[p.name] = Number(value);
           } else if (p.type === "boolean") {
             params[p.name] = value === true || value === "true";
-          } else if ((p.type === "object" || p.type === "array") && typeof value === "string") {
+          } else if (isStructured(p.type) && typeof value === "string") {
             try {
               params[p.name] = JSON.parse(value);
             } catch {
