@@ -62,7 +62,7 @@ async function main() {
   const output = getFlagValue(rawArgs, "--output") ?? (process.stdout.isTTY ? "pretty" : "json");
 
   try {
-    const spec = await loadSpec(specPath);
+    const spec = await loadSpec(specPath, { refresh: rawArgs.includes("--refresh") });
     const groups = extractOperations(spec);
 
     if (rawArgs.includes("--agent-help")) {

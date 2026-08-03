@@ -4,7 +4,8 @@ import { formatOutput } from "../output/formatters.js";
 import { validateResponse } from "../validator/schema.js";
 import { filterPii } from "@lucianfialho/pii-filter";
 import { printDryRun } from "./dry-run.js";
-import { simplifyName } from "./spec-hints.js";
+import { commandNamesForGroup } from "./command-names.js";
+import { flagNameForParam, optionValueForParam } from "./options.js";
 import { sanitizeCommandName, uniqueName } from "./sanitize.js";
 import { EXIT, classifyStatus, classifyThrown, fail, failMissingInput } from "./errors.js";
 import type { RuntimeConfig } from "../executor/types.js";
@@ -21,12 +22,15 @@ export function buildDynamicCommands(
     const groupName = uniqueName(sanitizeCommandName(group.tag), usedNames);
     const groupCmd = prog.command(groupName).description(group.description);
 
-    for (const op of group.operations) {
-      const cmdName = simplifyName(op.id, group.tag);
-      const cmd = groupCmd.command(cmdName).description(op.summary || op.description);
+    const cmdNames = commandNamesForGroup(group);
+
+    for (const [index, op] of group.operations.entries()) {
+      const cmd = groupCmd.command(cmdNames[index]).description(op.summary || op.description);
 
       for (const p of op.params) {
-        const flag = `--${p.name} <${p.name}>`;
+        // A spec parameter is free to be named `filter[name]`; a flag is not.
+        const flagName = flagNameForParam(p.name);
+        const flag = `--${flagName} <${flagName}>`;
         const desc = p.description || p.name;
         // Required params are declared optional to Commander and checked in the
         // action instead, so a caller learns about every missing input at once
@@ -41,26 +45,33 @@ export function buildDynamicCommands(
       }
 
       cmd.action(async (opts: Record<string, unknown>) => {
-        const missing = op.params.filter((p) => p.required && opts[p.name] === undefined);
+        // Required params are read back under their sanitized flag name too,
+        // or one named `filter[name]` would always look absent.
+        const missing = op.params.filter(
+          (p) => p.required && optionValueForParam(opts, p.name) === undefined
+        );
         if (missing.length > 0) {
-          failMissingInput(config.output, `${groupName} ${cmdName}`, missing);
+          failMissingInput(config.output, `${groupName} ${cmdNames[index]}`, missing);
         }
 
         const params: Record<string, unknown> = {};
         for (const p of op.params) {
-          if (opts[p.name] === undefined) continue;
+          // Read back under the sanitized name, since that is what Commander
+          // stored it as — the request still goes out under the spec's name.
+          const value = optionValueForParam(opts, p.name);
+          if (value === undefined) continue;
           if (p.type === "integer" || p.type === "number") {
-            params[p.name] = Number(opts[p.name]);
+            params[p.name] = Number(value);
           } else if (p.type === "boolean") {
-            params[p.name] = opts[p.name] === true || opts[p.name] === "true";
-          } else if ((p.type === "object" || p.type === "array") && typeof opts[p.name] === "string") {
+            params[p.name] = value === true || value === "true";
+          } else if ((p.type === "object" || p.type === "array") && typeof value === "string") {
             try {
-              params[p.name] = JSON.parse(opts[p.name] as string);
+              params[p.name] = JSON.parse(value);
             } catch {
-              params[p.name] = opts[p.name];
+              params[p.name] = value;
             }
           } else {
-            params[p.name] = opts[p.name];
+            params[p.name] = value;
           }
         }
 

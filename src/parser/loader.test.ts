@@ -60,13 +60,15 @@ describe("loadSpec", () => {
 
       vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
         ok: true,
+        status: 200,
+        headers: new Headers(),
         text: () => Promise.resolve(yamlContent),
       }));
 
       const spec = await loadSpec("https://example.com/openapi.yaml");
       expect(spec.openapi).toBe("3.0.3");
       expect(spec.info.title).toBe("Petstore");
-      expect(fetch).toHaveBeenCalledWith("https://example.com/openapi.yaml");
+      expect(fetch).toHaveBeenCalledWith("https://example.com/openapi.yaml", { headers: {} });
     });
 
     it("throws for failed HTTP request", async () => {
@@ -74,6 +76,7 @@ describe("loadSpec", () => {
         ok: false,
         status: 404,
         statusText: "Not Found",
+        headers: new Headers(),
       }));
 
       await expect(loadSpec("https://example.com/missing.yaml")).rejects.toThrow("Failed to fetch spec");
