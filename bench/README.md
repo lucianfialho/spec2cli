@@ -172,6 +172,26 @@ The shim fronts the same MCP servers over HTTP so spec2cli can call them, which
 is what makes the arms comparable: identical tools, identical implementations,
 only the access layer differs.
 
+## The experiment that would settle it
+
+The ~880-operation crossover is a property of the *agent*, not of spec2cli.
+Claude Code resends ~31k tokens of its own context per turn, which is what makes
+an extra discovery step cost so much. A lean loop — minimal system prompt, one
+tool — resends far less and should cross over much sooner.
+
+`harness/lean-agent.mjs` runs the same three arms and the same tasks against the
+Anthropic API directly. It needs `ANTHROPIC_API_KEY` and has not been run:
+
+```bash
+ANTHROPIC_API_KEY=... node bench/harness/lean-agent.mjs cli-flat
+ANTHROPIC_API_KEY=... node bench/harness/lean-agent.mjs cli
+```
+
+It prints context-resent-per-turn, which is the term that moves the crossover.
+If that lands near 2k rather than 31k, progressive disclosure becomes worth
+defaulting to at ordinary spec sizes and `PROGRESSIVE_THRESHOLD` in
+`src/cli/agent-help.ts` should come down.
+
 ## Not measured here
 
 Task quality beyond a correctness check, latency, and variance — every cell is a

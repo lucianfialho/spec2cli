@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { registerAuthCommands } from "../auth/commands.js";
 import { registerInitCommand } from "../config/init.js";
 import { registerUseCommand } from "../templates/commands.js";
+import { registerPrivacyCommands } from "../privacy/commands.js";
 
 /** The static half of the CLI: identity, help text, and the commands that exist
  *  regardless of any spec. Operation commands are added later, from the spec. */
@@ -17,12 +18,13 @@ export function createProgram(): Command {
   registerAuthCommands(program);
   registerInitCommand(program);
   registerUseCommand(program);
+  registerPrivacyCommands(program);
 
   return program;
 }
 
 const HELP = `
-Commands: use | search | add | remove
+Commands: use | search | add | remove | privacy scan
 Flags:    --dry-run | --reveal | --validate | --agent-help | --filter-pii | --header "Name: Value"
 
 Agent help (flat for small specs, drill-down for large ones):

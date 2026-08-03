@@ -197,6 +197,33 @@ that costs far more than a small catalog saves, so `--agent-help` hands over the
 flat catalog below 400 operations and drills down above it. See `bench/` for the
 measurements behind that threshold.
 
+### Privacy
+
+`--filter-pii` redacts personal data before it reaches your terminal — or a model
+reading your terminal. `privacy scan` shows what it would touch, so you can tell
+whether it covers enough before trusting it:
+
+```bash
+spec2cli privacy scan ./api.yaml
+# Shop API
+#
+# 4 fields would be redacted:
+#
+#   Customer
+#     email
+#     full_name
+#     phone
+#     cpf
+#
+# Returned by:
+#   GET /customers
+```
+
+Detection is by field name and format, so a field named unusually is missed —
+which is exactly why the scan exists. Add `--output json` for the field list as
+data. Enable filtering per-run with `--filter-pii`, or always with
+`privacyFilter: true` in `.toclirc`.
+
 ### Dry run
 
 `--dry-run` prints the request an operation would send, including a

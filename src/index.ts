@@ -20,7 +20,7 @@ async function main() {
   const envName = getFlagValue(rawArgs, "--env");
 
   const firstArg = rawArgs[0];
-  if (["auth", "init", "use", "search", "add", "remove"].includes(firstArg ?? "")) {
+  if (["auth", "init", "use", "search", "add", "remove", "privacy"].includes(firstArg ?? "")) {
     program.parse(process.argv);
     return;
   }
