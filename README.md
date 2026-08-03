@@ -134,6 +134,31 @@ spec2cli --spec api.yaml pets --help      # shows subcommands
 spec2cli --spec api.yaml pets create --help  # shows flags with types
 ```
 
+### Remote spec caching
+
+Specs fetched over HTTP are cached for an hour. Past that, spec2cli asks the
+server whether the spec changed instead of downloading it again — using the
+`ETag` or `Last-Modified` the server sent with the original response.
+
+On GitHub's own OpenAPI description (12.9 MB):
+
+| | |
+|---|---|
+| first fetch | 2.62s |
+| within the hour, no network | 0.17s |
+| after the hour, revalidated with a 304 | **0.25s** (was 2.62s) |
+
+A confirmed 304 also restarts the hour, so the following calls skip the network
+entirely. Servers that send no validator fall back to a full refetch.
+
+```bash
+spec2cli --spec https://example.com/api.json --refresh pets list  # force a check
+```
+
+If the server cannot be reached and a cached copy exists, the cached spec is
+used and a warning goes to stderr, rather than failing a command over a spec you
+already have.
+
 ### Debug
 
 ```bash

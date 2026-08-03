@@ -1,13 +1,18 @@
 import { readFile } from "node:fs/promises";
 import { parse as parseYaml } from "yaml";
-import { getCachedSpec, cacheSpec } from "./cache.js";
+import { readCache, writeCache, touchCache, conditionalHeaders } from "./cache.js";
 import type { OpenAPISpec } from "./types.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnySpec = any;
 
-export async function loadSpec(source: string): Promise<OpenAPISpec> {
-  const raw = await fetchSource(source);
+export interface LoadOptions {
+  /** Ignore cache freshness and revalidate (or refetch) the spec. */
+  refresh?: boolean;
+}
+
+export async function loadSpec(source: string, options: LoadOptions = {}): Promise<OpenAPISpec> {
+  const raw = await fetchSource(source, options);
   const parsed = parseContent(raw, source) as AnySpec;
 
   // Swagger 2.0 → convert to OpenAPI 3.0
@@ -22,21 +27,9 @@ export async function loadSpec(source: string): Promise<OpenAPISpec> {
   return spec;
 }
 
-async function fetchSource(source: string): Promise<string> {
+async function fetchSource(source: string, options: LoadOptions): Promise<string> {
   if (source.startsWith("http://") || source.startsWith("https://")) {
-    // Check cache first
-    const cached = await getCachedSpec(source);
-    if (cached) return cached;
-
-    const res = await fetch(source);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch spec from ${source}: ${res.status} ${res.statusText}`);
-    }
-    const content = await res.text();
-
-    // Cache for next time
-    await cacheSpec(source, content).catch(() => {}); // don't fail on cache write errors
-    return content;
+    return fetchRemote(source, options);
   }
 
   try {
@@ -48,6 +41,49 @@ async function fetchSource(source: string): Promise<string> {
     }
     throw new Error(`Failed to read spec file: ${source} (${code})`);
   }
+}
+
+async function fetchRemote(source: string, options: LoadOptions): Promise<string> {
+  const cached = await readCache(source);
+
+  if (cached?.fresh && !options.refresh) return cached.content;
+
+  // A stale entry is a question, not a miss: ask the server whether it changed.
+  const headers = cached ? conditionalHeaders(cached) : {};
+
+  let res: Response;
+  try {
+    res = await fetch(source, { headers });
+  } catch (err) {
+    // Nothing beats a copy of the spec when the network is gone. Say so, and
+    // let the command run rather than failing on a spec we already have.
+    if (cached) {
+      console.error(`Warning: could not reach ${source}, using cached spec`);
+      return cached.content;
+    }
+    throw new Error(`Failed to fetch spec from ${source}: ${(err as Error).message}`);
+  }
+
+  if (res.status === 304 && cached) {
+    await touchCache(source).catch(() => {});
+    return cached.content;
+  }
+
+  if (!res.ok) {
+    if (cached) {
+      console.error(`Warning: ${source} returned ${res.status}, using cached spec`);
+      return cached.content;
+    }
+    throw new Error(`Failed to fetch spec from ${source}: ${res.status} ${res.statusText}`);
+  }
+
+  const content = await res.text();
+  await writeCache(source, content, {
+    etag: res.headers.get("etag") ?? undefined,
+    lastModified: res.headers.get("last-modified") ?? undefined,
+  }).catch(() => {}); // a cache write failure should not fail the command
+
+  return content;
 }
 
 function parseContent(raw: string, source: string): unknown {
