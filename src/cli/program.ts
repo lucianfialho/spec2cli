@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { registerAuthCommands } from "../auth/commands.js";
 import { registerInitCommand } from "../config/init.js";
@@ -12,7 +15,7 @@ export function createProgram(): Command {
   program
     .name("spec2cli")
     .description("Turn any OpenAPI spec into a CLI. No code generation, no build step.")
-    .version("0.7.0")
+    .version(packageVersion())
     .addHelpText("after", HELP);
 
   registerAuthCommands(program);
@@ -21,6 +24,21 @@ export function createProgram(): Command {
   registerPrivacyCommands(program);
 
   return program;
+}
+
+/**
+ * Read from package.json rather than repeated here: the hardcoded string had
+ * already drifted two releases behind, and `--version` lying is worse than
+ * having no version at all.
+ */
+function packageVersion(): string {
+  try {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const pkg = JSON.parse(readFileSync(join(here, "..", "..", "package.json"), "utf-8"));
+    return pkg.version ?? "0.0.0";
+  } catch {
+    return "0.0.0";
+  }
 }
 
 const HELP = `
