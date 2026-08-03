@@ -134,6 +134,85 @@ spec2cli --spec api.yaml pets --help      # shows subcommands
 spec2cli --spec api.yaml pets create --help  # shows flags with types
 ```
 
+### Errors and exit codes
+
+Every failure kind gets its own exit code, so a caller can tell a missing flag
+from a rate limit from an unreachable host — and decide whether retrying is
+worth anything.
+
+| code | kind | retryable |
+|---|---|---|
+| 0 | success | — |
+| 2 | schema validation failed | no |
+| 3 | missing required input | no |
+| 4 | auth (401, 403) | no |
+| 5 | not found (404) | no |
+| 6 | other client error (4xx) | no |
+| 7 | rate limited (429) | **yes** |
+| 8 | server error (5xx) | **yes** |
+| 9 | network / unreachable | **yes** |
+| 10 | spec could not be loaded | no |
+
+Under `--output json` the failure is emitted as data on stdout rather than prose
+on stderr, because for a caller that asked for JSON a failure is still a result:
+
+```json
+{ "error": { "kind": "rate_limited", "message": "429 ...",
+             "retryable": true, "exit_code": 7, "status": 429 } }
+```
+
+Missing inputs report **every** missing parameter at once, with enough schema to
+fill them in and call again:
+
+```json
+{ "status": "input_required", "command": "pets create",
+  "missing": [{ "name": "name", "type": "string", "in": "body" }],
+  "exit_code": 3 }
+```
+
+### Agent help
+
+`--agent-help` emits a machine-readable catalog for an LLM agent driving the CLI.
+It is served progressively: a spec with 1000 operations costs ~84k tokens to dump
+in full, so the root level lists groups only and the agent pays for detail just
+where it decided to act.
+
+```bash
+spec2cli --spec api.yaml --agent-help                  # whole catalog, or groups if the spec is large
+spec2cli --spec api.yaml --agent-help pets             # command names in one group
+spec2cli --spec api.yaml --agent-help pets create      # full parameters for one command
+spec2cli --spec api.yaml --agent-help --find "create"  # search across every group
+spec2cli --spec api.yaml --agent-help --all            # force the whole catalog
+spec2cli --spec api.yaml --agent-help --progressive    # force the drill-down root
+```
+
+Walking root → group → command costs ~1.1k tokens on a 1000-operation spec,
+against ~84k for `--all`. Because only one command is expanded at a time, the
+detail level carries full descriptions — including parameter semantics that live
+in prose rather than in the schema.
+
+Discovery is not free, though: each drill-down is a round trip, and an agent
+resends its whole conversation every turn. Measured against a real agent loop
+that costs far more than a small catalog saves, so `--agent-help` hands over the
+flat catalog below 400 operations and drills down above it. See `bench/` for the
+measurements behind that threshold.
+
+### Dry run
+
+`--dry-run` prints the request an operation would send, including a
+copy-pasteable curl. **Credentials are masked** — this output is what people
+paste into bug reports:
+
+```bash
+spec2cli --spec api.yaml --dry-run pets get --petId 1
+# Authorization: Bearer sk-s...3456
+# curl -X GET 'https://api.example.com/pets/1' \
+#   -H 'Authorization: Bearer sk-s...3456'
+```
+
+Pass `--reveal` to emit them literally, and `--output json` to get the request
+as structured data instead of prose.
+
 ### Remote spec caching
 
 Specs fetched over HTTP are cached for an hour. Past that, spec2cli asks the

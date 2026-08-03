@@ -1,0 +1,5 @@
+# Synthetic scaling spec — 900 KB, regenerate with:
+#   node bench/harness/gen-spec.mjs 500 25 bench/specs/large.json
+specs/large.json
+
+results/

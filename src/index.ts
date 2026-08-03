@@ -1,38 +1,19 @@
 #!/usr/bin/env node
 
-import { Command } from "commander";
 import { loadSpec } from "./parser/loader.js";
 import { extractOperations } from "./parser/extractor.js";
-import { registerAuthCommands } from "./auth/commands.js";
 import { resolveAuth as resolveAuthFromFlags } from "./auth/flags.js";
-import { registerInitCommand } from "./config/init.js";
-import { registerUseCommand } from "./templates/commands.js";
+import { createProgram } from "./cli/program.js";
 import { loadConfig, resolveConfig } from "./config/rc.js";
 import { scanSchema } from "@lucianfialho/pii-filter";
 import { buildDynamicCommands } from "./cli/dynamic-commands.js";
-import { printAgentHelp, resolveBaseUrl } from "./cli/agent-help.js";
+import { printAgentHelp, parseAgentHelpSelector } from "./cli/agent-help.js";
+import { resolveBaseUrl } from "./cli/spec-hints.js";
 import { getFlagValue, parseHeaderArgs, filterTocliFlags } from "./cli/flags.js";
+import { fail } from "./cli/errors.js";
 import type { RuntimeConfig } from "./executor/types.js";
 
-const program = new Command();
-
-program
-  .name("spec2cli")
-  .description("Turn any OpenAPI spec into a CLI. No code generation, no build step.")
-  .version("0.7.0")
-  .addHelpText("after", `
-Commands: use | search | add | remove
-Flags:    --dry-run | --validate | --agent-help | --filter-pii | --header "Name: Value"
-
-Examples:
-  spec2cli --spec ./api.yaml pets list
-  spec2cli --spec ./api.yaml --filter-pii customers list
-  spec2cli use petstore pet findpetsbystatus --status available
-  spec2cli add myapi --spec ./openapi.yaml --base-url http://localhost:3000`);
-
-registerAuthCommands(program);
-registerInitCommand(program);
-registerUseCommand(program);
+const program = createProgram();
 
 async function main() {
   const rawArgs = process.argv.slice(2);
@@ -77,12 +58,15 @@ async function main() {
     return;
   }
 
+  // Resolved before the spec loads so a spec failure can still honour --output.
+  const output = getFlagValue(rawArgs, "--output") ?? (process.stdout.isTTY ? "pretty" : "json");
+
   try {
     const spec = await loadSpec(specPath, { refresh: rawArgs.includes("--refresh") });
     const groups = extractOperations(spec);
 
     if (rawArgs.includes("--agent-help")) {
-      printAgentHelp(groups, spec);
+      printAgentHelp(groups, spec, parseAgentHelpSelector(rawArgs));
       return;
     }
 
@@ -113,11 +97,12 @@ async function main() {
       specPath,
       baseUrl: getFlagValue(rawArgs, "--base-url") ?? configBaseUrl ?? resolveBaseUrl(spec, specPath),
       auth,
-      output: getFlagValue(rawArgs, "--output") ?? (process.stdout.isTTY ? "pretty" : "json"),
+      output,
       maxItems: getFlagValue(rawArgs, "--max-items") ? parseInt(getFlagValue(rawArgs, "--max-items")!) : undefined,
       verbose: rawArgs.includes("--verbose"),
       quiet: rawArgs.includes("--quiet"),
       dryRun: rawArgs.includes("--dry-run"),
+      revealSecrets: rawArgs.includes("--reveal"),
       validate: rawArgs.includes("--validate"),
       filterPii: filterPiiEnabled,
       piiSalt: process.env.SPEC2CLI_PII_SALT ?? "",
@@ -129,8 +114,7 @@ async function main() {
     const filteredArgv = filterTocliFlags(process.argv);
     program.parse(filteredArgv);
   } catch (err) {
-    console.error(`Error: ${(err as Error).message}`);
-    process.exit(1);
+    fail(output, { kind: "spec", message: (err as Error).message });
   }
 }
 

@@ -15,9 +15,12 @@ export function getFlagValues(args: string[], flag: string): string[] {
   return values;
 }
 
+/** Flags that consume the following argv entry as their value. */
+export const VALUE_FLAGS = new Set(["--spec", "--output", "--max-items", "--token", "--api-key", "--basic", "--base-url", "--profile", "--env", "--header", "-H"]);
+
 export function filterTocliFlags(argv: string[]): string[] {
-  const valueFlags = new Set(["--spec", "--output", "--max-items", "--token", "--api-key", "--basic", "--base-url", "--profile", "--env", "--header", "-H"]);
-  const boolFlags = new Set(["--verbose", "--quiet", "--dry-run", "--validate", "--agent-help", "--filter-pii", "--refresh"]);
+  const valueFlags = VALUE_FLAGS;
+  const boolFlags = new Set(["--verbose", "--quiet", "--dry-run", "--reveal", "--refresh", "--validate", "--agent-help", "--filter-pii"]);
   const result: string[] = [];
   let i = 0;
   while (i < argv.length) {

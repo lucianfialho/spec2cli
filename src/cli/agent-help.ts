@@ -1,124 +1,117 @@
 import { stringify as toYaml } from "yaml";
+import { VALUE_FLAGS } from "./flags.js";
+import { simplifyName } from "./spec-hints.js";
+import { findGroup, findOp } from "./agent-help-shared.js";
+import { describeRoot, describeGroup, describeOp, searchOps } from "./agent-help-views.js";
+import { fullDump } from "./agent-help-full.js";
 import type { OperationGroup, OpenAPISpec } from "../parser/types.js";
 
-export function printAgentHelp(groups: OperationGroup[], spec: OpenAPISpec): void {
-  const help: Record<string, unknown> = {
-    api: spec.info.title,
-    base_url: spec.servers?.[0]?.url ?? "http://localhost:3000",
-    auth: resolveAuthHint(spec),
-    flags: {
-      "--output": "json | pretty | table | yaml | quiet",
-      "--dry-run": "preview HTTP request without executing (includes curl)",
-      "--validate": "validate response against OpenAPI schema",
-      "--verbose": "show full HTTP request/response",
-      "--max-items": "limit array results",
-      "--filter-pii": "redact PII fields in response before output",
-    },
-    commands: {} as Record<string, unknown>,
-  };
+export { resolveAuthHint, simplifyName, resolveBaseUrl } from "./spec-hints.js";
 
-  const commands = help.commands as Record<string, unknown>;
-
-  for (const group of groups) {
-    const groupCmds: Record<string, unknown> = {};
-
-    for (const op of group.operations) {
-      const cmdName = simplifyName(op.id, group.tag);
-      const cmd: Record<string, unknown> = {
-        method: op.method,
-        desc: op.summary || op.description,
-      };
-
-      const params = op.params.filter((p) => p.required);
-      const optionals = op.params.filter((p) => !p.required);
-
-      if (params.length > 0) {
-        cmd.required = params.map((p) => {
-          const entry: Record<string, unknown> = { name: p.name, type: p.type };
-          if (p.enum) entry.enum = p.enum;
-          return entry;
-        });
-      }
-
-      if (optionals.length > 0) {
-        cmd.optional = optionals.map((p) => {
-          const entry: Record<string, unknown> = { name: p.name, type: p.type };
-          if (p.enum) entry.enum = p.enum;
-          if (p.default !== undefined) entry.default = p.default;
-          return entry;
-        });
-      }
-
-      groupCmds[cmdName] = cmd;
-    }
-
-    commands[group.tag] = groupCmds;
-  }
-
-  console.log(toYaml(help));
+/**
+ * Agent help is served progressively. A spec with 1000 operations costs ~84k
+ * tokens to dump in full, which is the same context-coupling problem MCP has.
+ * The root level lists groups only; the agent drills into a group, then into a
+ * single command, paying for detail just where it decided to act.
+ *
+ * Because only one operation is expanded at a time, the detail level can afford
+ * full descriptions — the parameter semantics that a truncated summary drops.
+ */
+export interface AgentHelpSelector {
+  group?: string;
+  command?: string;
+  find?: string;
+  all?: boolean;
+  /** Force the drill-down root regardless of how many operations the spec has. */
+  progressive?: boolean;
 }
 
-export function resolveAuthHint(spec: OpenAPISpec): string {
-  const schemes = spec.components?.securitySchemes;
-  if (!schemes) return "none";
+/**
+ * Reads the drill-down target out of argv. Only reached when --agent-help is
+ * present, which short-circuits command dispatch — so --all and --find here can
+ * never collide with a parameter of the same name on a real operation.
+ */
+export function parseAgentHelpSelector(args: string[]): AgentHelpSelector {
+  const selector: AgentHelpSelector = {};
+  const positionals: string[] = [];
 
-  const apiKeyHeaders: string[] = [];
-  for (const scheme of Object.values(schemes)) {
-    if (scheme.type === "apiKey" && scheme.in === "header" && scheme.name) {
-      apiKeyHeaders.push(scheme.name);
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (VALUE_FLAGS.has(arg)) {
+      i++;
+      continue;
     }
+    if (arg === "--all") {
+      selector.all = true;
+      continue;
+    }
+    if (arg === "--progressive") {
+      selector.progressive = true;
+      continue;
+    }
+    if (arg === "--find") {
+      selector.find = args[i + 1];
+      i++;
+      continue;
+    }
+    if (!arg.startsWith("-")) positionals.push(arg);
   }
 
-  if (apiKeyHeaders.length > 1) {
-    const parts = apiKeyHeaders.map((h) => `--header "${h}: <value>"`).join(" ");
-    return `multi-header ${parts}`;
-  }
-
-  for (const scheme of Object.values(schemes)) {
-    if (scheme.type === "http" && scheme.scheme === "bearer") return "bearer --token <TOKEN>";
-    if (scheme.type === "http" && scheme.scheme === "basic") return "basic --basic <USER:PASSWORD>";
-    if (scheme.type === "apiKey") return `apiKey --api-key <KEY> (header: ${scheme.name})`;
-  }
-
-  return "none";
+  if (positionals[0]) selector.group = positionals[0];
+  if (positionals[1]) selector.command = positionals[1];
+  return selector;
 }
 
-export function simplifyName(operationId: string, tag: string): string {
-  const tagLower = tag.toLowerCase();
-  const idLower = operationId.toLowerCase();
-  const singular = tagLower.endsWith("s") ? tagLower.slice(0, -1) : tagLower;
-
-  for (const suffix of [tagLower, singular]) {
-    if (idLower.endsWith(suffix) && idLower.length > suffix.length) {
-      return operationId.slice(0, operationId.length - suffix.length).toLowerCase();
-    }
-  }
-  return operationId.toLowerCase();
+export function printAgentHelp(
+  groups: OperationGroup[],
+  spec: OpenAPISpec,
+  selector: AgentHelpSelector = {}
+): void {
+  console.log(toYaml(buildAgentHelp(groups, spec, selector)));
 }
 
-export function resolveBaseUrl(spec: OpenAPISpec, specSource: string): string {
-  const serverUrl = spec.servers?.[0]?.url;
+/**
+ * Below this many operations the flat catalog is cheaper than discovering it.
+ *
+ * Progressive disclosure trades a smaller upfront payload for extra round trips,
+ * and a round trip is not free: the whole conversation is resent each turn. On a
+ * measured agent loop that came to ~73k tokens per extra discovery step, against
+ * a flat catalog of ~84 tokens per operation — so the trade only pays somewhere
+ * near a thousand operations. A leaner agent resends less and crosses over
+ * sooner, which is why this sits well below the measured figure rather than at
+ * it. See bench/README.md.
+ */
+const PROGRESSIVE_THRESHOLD = 400;
 
-  if (serverUrl?.startsWith("http://") || serverUrl?.startsWith("https://")) {
-    return serverUrl;
+function buildAgentHelp(
+  groups: OperationGroup[],
+  spec: OpenAPISpec,
+  selector: AgentHelpSelector
+): Record<string, unknown> {
+  if (selector.all) return fullDump(groups, spec);
+  if (selector.find) return searchOps(groups, spec, selector.find);
+
+  if (!selector.group) {
+    const total = groups.reduce((n, g) => n + g.operations.length, 0);
+    const progressive = selector.progressive ?? total > PROGRESSIVE_THRESHOLD;
+    return progressive ? describeRoot(groups, spec) : fullDump(groups, spec);
   }
 
-  if (serverUrl && specSource.startsWith("http")) {
-    try {
-      const origin = new URL(specSource).origin;
-      return origin + (serverUrl.startsWith("/") ? serverUrl : "/" + serverUrl);
-    } catch {
-      // fall through
-    }
+  const group = findGroup(groups, selector.group);
+  if (!group) {
+    return { error: `unknown group: ${selector.group}`, groups: groups.map((g) => g.tag) };
   }
 
-  if (specSource.startsWith("http")) {
-    try {
-      return new URL(specSource).origin;
-    } catch {
-      // fall through
-    }
+  if (!selector.command) return describeGroup(group, spec);
+
+  const op = findOp(group, selector.command);
+  if (!op) {
+    return {
+      error: `unknown command: ${selector.command}`,
+      group: group.tag,
+      commands: group.operations.map((o) => simplifyName(o.id, group.tag)),
+    };
   }
 
-  return "http://localhost:3000";
+  return describeOp(op, group, spec);
 }

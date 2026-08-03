@@ -1,0 +1,177 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "met-museum-mcp",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8901"
+    }
+  ],
+  "tags": [
+    {
+      "name": "met"
+    }
+  ],
+  "paths": {
+    "/tools/list-departments": {
+      "post": {
+        "operationId": "list-departments",
+        "summary": "List all departments in the Metropolitan Museum of Art (Met Museum)",
+        "description": "List all departments in the Metropolitan Museum of Art (Met Museum)",
+        "tags": [
+          "met"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "__intent": {
+                    "type": "string",
+                    "description": "In ≤ 30 words, describe why you are calling this tool and how its result advances your overall task. Don't use first-person pronouns like \"I\" or \"my\". Make sure to give a gist of the whole task and how this tool fits into it."
+                  }
+                },
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "required": [
+                  "__intent"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/search-museum-objects": {
+      "post": {
+        "operationId": "search-museum-objects",
+        "summary": "Search for objects in the Metropolitan Museum of Art (Met Museum). Will return Total objects found, followed by a list of Object Ids.The parameter title should be set to true if you want to search for objects by title.The parameter hasImages is false by default, but can be set to true to return obje",
+        "description": "Search for objects in the Metropolitan Museum of Art (Met Museum). Will return Total objects found, followed by a list of Object Ids.The parameter title should be set to true if you want to search for objects by title.The parameter hasImages is false by default, but can be set to true to return objects without images.If the parameter hasImages is true, the parameter title should be false.",
+        "tags": [
+          "met"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "q": {
+                    "type": "string",
+                    "description": "The search query, Returns a listing of all Object IDs for objects that contain the search query within the object's data"
+                  },
+                  "hasImages": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Only returns objects that have images"
+                  },
+                  "title": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "This should be set to true if you want to search for objects by title"
+                  },
+                  "departmentId": {
+                    "type": "number",
+                    "description": "Returns objects that are in the specified department. The departmentId should come from the 'list-departments' tool."
+                  },
+                  "__intent": {
+                    "type": "string",
+                    "description": "In ≤ 30 words, describe why you are calling this tool and how its result advances your overall task. Don't use first-person pronouns like \"I\" or \"my\". Make sure to give a gist of the whole task and how this tool fits into it."
+                  }
+                },
+                "required": [
+                  "q",
+                  "__intent"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/get-museum-object": {
+      "post": {
+        "operationId": "get-museum-object",
+        "summary": "Get a museum object by its ID, from the Metropolitan Museum of Art Collection",
+        "description": "Get a museum object by its ID, from the Metropolitan Museum of Art Collection",
+        "tags": [
+          "met"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "objectId": {
+                    "type": "number",
+                    "description": "The ID of the museum object to retrieve"
+                  },
+                  "returnImage": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to return the image (if available) of the object and add it to the server resources"
+                  },
+                  "__intent": {
+                    "type": "string",
+                    "description": "In ≤ 30 words, describe why you are calling this tool and how its result advances your overall task. Don't use first-person pronouns like \"I\" or \"my\". Make sure to give a gist of the whole task and how this tool fits into it."
+                  }
+                },
+                "required": [
+                  "objectId",
+                  "__intent"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tool result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

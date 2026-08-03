@@ -20,6 +20,8 @@ export interface RuntimeConfig {
   verbose: boolean;
   quiet: boolean;
   dryRun: boolean;
+  /** Print credentials literally in --dry-run output instead of masking them. */
+  revealSecrets?: boolean;
   validate: boolean;
   filterPii: boolean;
   piiSalt: string;

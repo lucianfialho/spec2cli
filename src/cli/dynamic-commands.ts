@@ -7,6 +7,7 @@ import { printDryRun } from "./dry-run.js";
 import { commandNamesForGroup } from "./command-names.js";
 import { flagNameForParam, optionValueForParam } from "./options.js";
 import { sanitizeCommandName, uniqueName } from "./sanitize.js";
+import { EXIT, classifyStatus, classifyThrown, fail, failMissingInput } from "./errors.js";
 import type { RuntimeConfig } from "../executor/types.js";
 import type { OperationGroup, OpenAPISpec } from "../parser/types.js";
 
@@ -31,8 +32,11 @@ export function buildDynamicCommands(
         const flagName = flagNameForParam(p.name);
         const flag = `--${flagName} <${flagName}>`;
         const desc = p.description || p.name;
+        // Required params are declared optional to Commander and checked in the
+        // action instead, so a caller learns about every missing input at once
+        // rather than one per failed invocation.
         if (p.required) {
-          cmd.requiredOption(flag, desc);
+          cmd.option(flag, `${desc} (required)`);
         } else if (p.default !== undefined) {
           cmd.option(flag, desc, String(p.default));
         } else {
@@ -41,6 +45,15 @@ export function buildDynamicCommands(
       }
 
       cmd.action(async (opts: Record<string, unknown>) => {
+        // Required params are read back under their sanitized flag name too,
+        // or one named `filter[name]` would always look absent.
+        const missing = op.params.filter(
+          (p) => p.required && optionValueForParam(opts, p.name) === undefined
+        );
+        if (missing.length > 0) {
+          failMissingInput(config.output, `${groupName} ${cmdNames[index]}`, missing);
+        }
+
         const params: Record<string, unknown> = {};
         for (const p of op.params) {
           // Read back under the sanitized name, since that is what Commander
@@ -70,12 +83,18 @@ export function buildDynamicCommands(
         try {
           const result = await executeRequest(op, params, config.auth, config.baseUrl, config.verbose);
 
-          if (config.quiet) process.exit(result.status >= 400 ? 1 : 0);
-
           if (result.status >= 400) {
-            console.error(`Error: ${result.status} ${JSON.stringify(result.data)}`);
-            process.exit(1);
+            const kind = classifyStatus(result.status);
+            if (config.quiet) process.exit(EXIT[kind]);
+            fail(config.output, {
+              kind,
+              message: `${result.status} ${JSON.stringify(result.data)}`,
+              status: result.status,
+              body: result.data,
+            });
           }
+
+          if (config.quiet) process.exit(EXIT.ok);
 
           let responseData = result.data;
           if (config.filterPii && responseData !== null && typeof responseData === "object") {
@@ -101,12 +120,14 @@ export function buildDynamicCommands(
               for (const err of validation.errors) {
                 console.error(`  ${err.path}: expected ${err.expected}, got ${err.got}`);
               }
-              process.exit(2);
+              process.exit(EXIT.validation);
             }
           }
         } catch (err) {
-          console.error(`Request failed: ${(err as Error).message}`);
-          process.exit(1);
+          fail(config.output, {
+            kind: classifyThrown(err),
+            message: `Request failed: ${(err as Error).message}`,
+          });
         }
       });
     }
